@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clinic Audit Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f8; margin: 0; }
+        .container { max-width: 900px; margin: 0 auto 40px; background: white; border-radius: 0 0 16px 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.13); overflow: hidden; }
+        .form-body { padding: 28px 32px 32px; }
+
+        /* ===== HEADER ===== */
+        .portal-header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #3949ab 100%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 22px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .portal-header::after {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+        }
+        .portal-header::before {
+            content: '';
+            position: absolute;
+            right: 60px;
+            bottom: -50px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
+        .header-icon-box {
+            width: 58px;
+            height: 58px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.13);
+            border: 2px solid rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .header-icon-box svg {
+            width: 30px;
+            height: 30px;
+            fill: none;
+            stroke: rgba(255,255,255,0.92);
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .header-text-block { flex: 1; }
+        .header-text-block h2 {
+            color: #ffffff;
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            margin: 0 0 4px;
+            text-align: left;
+            text-transform: uppercase;
+        }
+        .header-text-block .subtitle {
+            color: rgba(255,255,255,0.72);
+            font-size: 0.78rem;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin: 0;
+            text-align: left;
+        }
+
+        h2 { text-align: center; color: #1a237e; margin: 0 0 3px; font-size: 1.35rem; letter-spacing: 0.3px; }
+        .subtitle { text-align: center; color: #7986cb; font-size: 0.82rem; margin-bottom: 24px; margin-top: 4px; }
+
+        label { display: block; margin-top: 15px; font-weight: 600; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.7px; }
+        input, select { width: 100%; padding: 11px 14px; margin-top: 6px; border-radius: 10px; border: 1.5px solid #e2e6f0; box-sizing: border-box; font-size: 14px; transition: border 0.2s; color: #333; background: #fff; }
+        textarea { width: 100%; padding: 10px 12px; margin-top: 5px; border-radius: 8px; border: 1.5px solid #dde3f0; box-sizing: border-box; font-size: 14px; transition: border 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: #5c6bc0; outline: none; box-shadow: 0 0 0 3px rgba(92,107,192,0.1); }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* ===== ACTION BUTTONS ROW ===== */
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin: 24px 0 8px;
+        }
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 22px 12px 18px;
+            border: none;
+            border-radius: 14px;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.18s, box-shadow 0.2s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            line-height: 1.3;
+            min-height: 110px;
+        }
+        .action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.22); }
+
+        /* Circle icon inside buttons */
+        .btn-circle-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,0.35);
+            flex-shrink: 0;
+        }
+        .btn-circle-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: white;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .btn-text-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .btn-label { font-size: 14px; font-weight: 800; letter-spacing: 0.3px; color: white; }
+        .btn-sub { font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.78); letter-spacing: 0.2px; }
+
+        .gemini-btn { background: linear-gradient(135deg, #7c4dff, #5535c9); }
+        .guide-btn  { background: linear-gradient(135deg, #ff9800, #e65c00); }
+        .prompt-btn { background: linear-gradient(135deg, #00a87e, #007a5a); }
+
+        /* ===== PROMPT MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.52);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            animation: fadeUp 0.25s ease;
+        }
+        @keyframes fadeUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px 14px;
+            border-bottom: 2px solid #e0f2f1;
+            background: linear-gradient(135deg, #e0f7fa, #e8f5e9);
+            border-radius: 16px 16px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .modal-header-left { display: flex; align-items: center; gap: 10px; }
+        .modal-header-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #004d40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 2px solid #00695c;
+            flex-shrink: 0;
+        }
+        .modal-title { font-size: 1.05rem; font-weight: 700; color: #004d40; }
+        .modal-subtitle { font-size: 0.75rem; color: #26a69a; margin-top: 1px; }
+        .modal-close {
+            background: #ef5350;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .modal-close:hover { background: #c62828; }
+
+        .modal-body { padding: 20px 22px 24px; }
+
+        /* Step Cards */
+        .step-card {
+            border-radius: 11px;
+            border: 1.5px solid #e3e8f0;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 16px;
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+        .step-num {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+        }
+        .step-body { padding: 2px 16px 14px; }
+
+        /* Prompt Box */
+        .prompt-box {
+            background: #f3f4ff;
+            border: 1.5px solid #c5cae9;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 0.82rem;
+            color: #1a237e;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+            user-select: text;
+        }
+        .prompt-section-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #7986cb;
+            margin: 10px 0 5px;
+        }
+        .prompt-highlight {
+            background: #fff8e1;
+            border-left: 3px solid #ffb300;
+            border-radius: 0 6px 6px 0;
+            padding: 7px 12px;
+            font-size: 0.8rem;
+            color: #5d4037;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #5c6bc0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover { background: #3949ab; }
+        .copy-btn.copied { background: #43a047; }
+
+        /* Format tags inside prompt */
+        .ptag {
+            display: inline-block;
+            background: #e8eaf6;
+            color: #3949ab;
+            border-radius: 5px;
+            padding: 1px 7px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin: 1px 2px;
+        }
+
+        /* ===== EXTRACT BUTTON ===== */
+        .extract-btn {
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(13,71,161,0.25);
+            transition: opacity 0.2s;
+        }
+        .extract-btn:hover { opacity: 0.9; }
+
+        /* ===== SECTION DIVIDER ===== */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 22px 0 10px;
+        }
+        .section-divider span {
+            font-size: 12px;
+            font-weight: 700;
+            color: #5c6bc0;
+            white-space: nowrap;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+        .section-divider::before, .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1.5px;
+            background: #e3e8f0;
+        }
+
+        /* ===== EXTRACTED DATA FIELDS ===== */
+        .param-block {
+            background: #ffffff;
+            border: 1.5px solid #e2e6f3;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(26,35,126,0.06);
+        }
+        .param-block:last-child { margin-bottom: 0; }
+        .param-name-label {
+            background: linear-gradient(135deg, #3730a3, #4338ca);
+            color: #ffffff;
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 11px 18px;
+            display: block;
+        }
+        .param-block-body {
+            padding: 16px 18px 18px;
+            background: #fafbff;
+        }
+        .param-fields-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+        .param-fields-row .score-wrap label,
+        .param-fields-row .comment-wrap label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #888;
+            margin-top: 0;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+        .param-fields-row input {
+            background: #fff;
+            border-color: #dde3f0;
+            margin-top: 0;
+            border-radius: 8px;
+        }
+        .param-fields-row input:focus { border-color: #5c6bc0; background: #fff; }
+
+        /* Comment textarea — taller, vertical scroll only */
+        .comment-textarea {
+            width: 100%;
+            min-height: 100px;
+            max-height: 180px;
+            resize: vertical;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px 12px;
+            margin-top: 0;
+            border-radius: 8px;
+            border: 1.5px solid #dde3f0;
+            box-sizing: border-box;
+            font-size: 13px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            transition: border 0.2s;
+        }
+        .comment-textarea:focus { border-color: #5c6bc0; outline: none; box-shadow: 0 0 0 3px rgba(92,107,192,0.1); }
+        .comment-textarea::placeholder { color: #aab0cc; }
+
+        /* Final score + issues row */
+        .final-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 16px;
+        }
+        .final-row .field-wrap label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-top: 0;
+        }
+        .final-row input {
+            background: #fff;
+            border-color: #dde3f0;
+            margin-top: 4px;
+            border-radius: 8px;
+        }
+
+        /* ===== SUBMIT BUTTON ===== */
+        .submit-btn {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            width: 100%;
+            margin-top: 24px;
+            font-size: 15px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 14px rgba(26,35,126,0.3);
+            transition: opacity 0.2s;
+        }
+        .submit-btn:hover { opacity: 0.92; }
+
+        .progress-bar { width: 100%; background: #e0e0e0; border-radius: 20px; margin-top: 18px; overflow: hidden; }
+        .progress { height: 20px; width: 0%; background: linear-gradient(90deg, #43a047, #66bb6a); border-radius: 20px; text-align: center; color: white; font-size: 12px; line-height: 20px; transition: width 0.3s; }
+
+        /* File Upload Labels */
+        .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+        .upload-item label { margin-top: 0; font-size: 12px; color: #7986cb; font-weight: 600; }
+        .upload-item input { margin-top: 3px; }
+
+        /* ===== SECTION DIVIDER override for new style ===== */
+        .section-divider span {
+            font-size: 11px;
+            font-weight: 800;
+            color: #5c6bc0;
+            letter-spacing: 1.2px;
+        }
+
+        @media(max-width:600px){
+            .grid, .upload-grid { grid-template-columns: 1fr; }
+            .action-row { grid-template-columns: 1fr; }
+            .container { margin: 0 0 20px; border-radius: 0; }
+            .form-body { padding: 18px 16px 24px; }
+            .param-fields-row { grid-template-columns: 1fr; }
+            .final-row { grid-template-columns: 1fr; }
+            .portal-header { padding: 18px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- BANNER HEADER -->
+    <div class="portal-header">
+        <div class="header-icon-box">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="7" width="20" height="14" rx="2"/>
+                <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="12" y1="12" x2="12" y2="16"/>
+                <line x1="10" y1="14" x2="14" y2="14"/>
+            </svg>
+        </div>
+        <div class="header-text-block">
+            <h2>M-Swasth Clinic Audit Portal</h2>
+            <div class="subtitle">Clinic Hygiene &amp; Marketing Evaluation System</div>
+        </div>
+    </div>
+
+    <div class="form-body">
+    <form id="uploadForm" enctype="multipart/form-data">
+
+        <label>Auditor MSID</label>
+        <input type="text" name="agentMsid" required placeholder="Enter your MSID">
+
+        <div class="grid" style="margin-top:14px;">
+            <div>
+                <label>EClinic Code</label>
+                <input type="text" name="eclinicCode" required pattern="^EC[A-Z]+[0-9]+$" placeholder="e.g. ECMP001">
+            </div>
+            <div>
+                <label>State / UT</label>
+                <select name="state" required>
+                    <option value="">Select State</option>
+                    <option>Madhya Pradesh</option><option>Maharashtra</option><option>Delhi</option>
+                    <option>Uttar Pradesh</option><option>West Bengal</option><option>Gujarat</option>
+                    <option>Rajasthan</option><option>Tamil Nadu</option><option>Karnataka</option>
+                    <option>Kerala</option><option>Telangana</option><option>Andhra Pradesh</option>
+                    <option>Punjab</option><option>Haryana</option><option>Bihar</option>
+                    <option>Odisha</option><option>Chhattisgarh</option><option>Jharkhand</option>
+                    <option>Assam</option><option>Goa</option><option>Himachal Pradesh</option>
+                    <option>Uttarakhand</option><option>Jammu and Kashmir</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ===== 3-BUTTON ACTION ROW ===== -->
+        <div class="action-row">
+            <a href="https://gemini.google.com/" target="_blank" class="action-btn gemini-btn">
+                <div class="btn-circle-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                </div>
+                <div class="btn-text-group">
+                    <span class="btn-label">Open Gemini</span>
+                    <span class="btn-sub">AI Analysis Tool</span>
+                </div>
+            </a>
+            <a href="/guideline" target="_blank" class="action-btn guide-btn">
+                <div class="btn-circle-icon">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg>
+                </div>
+                <div class="btn-text-group">
+                    <span class="btn-label">View Guidelines</span>
+                    <span class="btn-sub">Audit Standards</span>
+                </div>
+            </a>
+            <button type="button" onclick="openPromptModal()" class="action-btn prompt-btn">
+                <div class="btn-circle-icon">
+                    <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+                </div>
+                <div class="btn-text-group">
+                    <span class="btn-label">View Prompt</span>
+                    <span class="btn-sub">Copy AI Prompt</span>
+                </div>
+            </button>
+        </div>
+
+        <!-- AI OUTPUT -->
+        <div class="section-divider"><span>AI Output</span></div>
+        <label style="margin-top:0;">Raw AI Output</label>
+        <textarea id="aiOutput" rows="6" placeholder="Paste the full Gemini response here..."></textarea>
+        <button type="button" onclick="splitOutput()" class="extract-btn">
+            Extract AI Data
+        </button>
+
+        <!-- EXTRACTED DATA -->
+        <div class="section-divider"><span>Extracted Data — Review &amp; Edit</span></div>
+
+        <!-- PARAMETER 1: Cleanliness -->
+        <div class="param-block">
+            <div class="param-name-label">Parameter 1 — Cleanliness (Inside &amp; Entrance)</div>
+            <div class="param-block-body">
+                <div class="param-fields-row">
+                    <div class="score-wrap">
+                        <label>Score (Out of 20)</label>
+                        <input type="text" id="cleanliness" placeholder="e.g. 17">
+                    </div>
+                    <div class="comment-wrap">
+                        <label>Observations / Comments</label>
+                        <textarea class="comment-textarea" id="cleanliness_comment" placeholder="Enter detailed observations for this parameter..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PARAMETER 2: Board & Banner -->
+        <div class="param-block">
+            <div class="param-name-label">Parameter 2 — Board &amp; Banner (M-Swasth Only)</div>
+            <div class="param-block-body">
+                <div class="param-fields-row">
+                    <div class="score-wrap">
+                        <label>Score (Out of 20)</label>
+                        <input type="text" id="board" placeholder="e.g. 17">
+                    </div>
+                    <div class="comment-wrap">
+                        <label>Observations / Comments</label>
+                        <textarea class="comment-textarea" id="board_comment" placeholder="Enter detailed observations for this parameter..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PARAMETER 3: Poster & Certificate -->
+        <div class="param-block">
+            <div class="param-name-label">Parameter 3 — Poster &amp; Certificate Placement</div>
+            <div class="param-block-body">
+                <div class="param-fields-row">
+                    <div class="score-wrap">
+                        <label>Score (Out of 20)</label>
+                        <input type="text" id="poster" placeholder="e.g. 17">
+                    </div>
+                    <div class="comment-wrap">
+                        <label>Observations / Comments</label>
+                        <textarea class="comment-textarea" id="poster_comment" placeholder="Enter detailed observations for this parameter..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PARAMETER 4: Furniture & Table -->
+        <div class="param-block">
+            <div class="param-name-label">Parameter 4 — Furniture &amp; Table Setup</div>
+            <div class="param-block-body">
+                <div class="param-fields-row">
+                    <div class="score-wrap">
+                        <label>Score (Out of 20)</label>
+                        <input type="text" id="furniture" placeholder="e.g. 17">
+                    </div>
+                    <div class="comment-wrap">
+                        <label>Observations / Comments</label>
+                        <textarea class="comment-textarea" id="furniture_comment" placeholder="Enter detailed observations for this parameter..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PARAMETER 5: Medicine & Equipment -->
+        <div class="param-block">
+            <div class="param-name-label">Parameter 5 — Placement of Medicine &amp; Equipment</div>
+            <div class="param-block-body">
+                <div class="param-fields-row">
+                    <div class="score-wrap">
+                        <label>Score (Out of 20)</label>
+                        <input type="text" id="equipment" placeholder="e.g. 17">
+                    </div>
+                    <div class="comment-wrap">
+                        <label>Observations / Comments</label>
+                        <textarea class="comment-textarea" id="equipment_comment" placeholder="Enter detailed observations for this parameter..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINAL SCORE + ISSUES -->
+        <div class="final-row">
+            <div class="field-wrap">
+                <label>Final Overall Score (out of 100)</label>
+                <input type="text" id="finalScore" placeholder="e.g. 80">
+            </div>
+            <div class="field-wrap">
+                <label>Key Issues to Improve</label>
+                <input type="text" id="issues" placeholder="Key issues observed...">
+            </div>
+        </div>
+
+        <!-- UPLOAD PHOTOS -->
+        <div class="section-divider"><span>Media Upload</span></div>
+        <label style="margin-top:0;">Upload Photos <span style="color:#e53935;font-size:12px;">(All 4 Required)</span></label>
+        <div class="upload-grid">
+            <div class="upload-item">
+                <label>Photo 1</label>
+                <input type="file" name="photo1" accept="image/*" required>
+            </div>
+            <div class="upload-item">
+                <label>Photo 2</label>
+                <input type="file" name="photo2" accept="image/*" required>
+            </div>
+            <div class="upload-item">
+                <label>Photo 3</label>
+                <input type="file" name="photo3" accept="image/*" required>
+            </div>
+            <div class="upload-item">
+                <label>Photo 4</label>
+                <input type="file" name="photo4" accept="image/*" required>
+            </div>
+        </div>
+
+        <label style="margin-top:16px;">Upload Video</label>
+        <input type="file" name="video" accept="video/*" required>
+
+        <button type="submit" class="submit-btn">Submit Audit</button>
+
+        <div class="progress-bar"><div class="progress" id="progressBar">0%</div></div>
+    </form>
+    </div><!-- end form-body -->
+</div>
+
+
+<!-- ===== PROMPT MODAL ===== -->
+<div class="modal-overlay" id="promptModal" onclick="closeOnOverlay(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-header-left">
+                <div class="modal-header-icon">PR</div>
+                <div>
+                    <div class="modal-title">Gemini Audit Prompt</div>
+                    <div class="modal-subtitle">Copy this prompt and paste into Gemini with your clinic photos/video</div>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closePromptModal()">X</button>
+        </div>
+
+        <div class="modal-body">
+
+            <!-- STEP 1 -->
+            <div class="step-card" style="border-color:#c8e6c9;">
+                <div class="step-header" style="background:#f1f8e9; color:#2e7d32;">
+                    <span class="step-num" style="background:#43a047;">1</span>
+                    Upload Media to Gemini
+                </div>
+                <div class="step-body">
+                    <p style="font-size:0.82rem; color:#555; margin:8px 0 0;">
+                        Open <strong>Gemini</strong>, upload your <strong> and <strong>1 video</strong>, then paste the prompt below and send.
+                    </p>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="step-card" style="border-color:#c5cae9;">
+                <div class="step-header" style="background:#e8eaf6; color:#1a237e;">
+                    <span class="step-num" style="background:#3949ab;">2</span>
+                    Copy &amp; Use This Prompt
+                </div>
+                <div class="step-body">
+
+                    <div class="prompt-section-title">Role &amp; Task</div>
+                    <div class="prompt-box" id="promptText"># UPDATED CLINIC AUDIT PROMPT — FINAL VERSION
+
+---
+
+## INSTRUCTION TO AI:
+
+You are evaluating a clinic walkthrough video using the below internal evaluation guidelines. Use these strictly to assign scores and highlight key issues. However, do not include these instructions, full criteria, examples, or detailed deduction explanations in the final output.
+
+Your output must only contain:
+- Final scores (out of 20 for each category)
+- Only key deductions or observed issues (do not explain rules)
+- Only list what was found or missing, not what "should" be done
+- Only display comments that explain deductions
+- Keep the Key Observations section focused only on what was seen — no generic best practices
+- Do not copy paste or repeat evaluation rules or examples
+- The final total score is out of 100
+- **In every comment/remark section, clearly mention the reason for deduction AND whether the item was not captured in video, not visible due to poor video quality, or missing entirely**
+
+---
+
+## 🔹 EVALUATION GUIDELINES (FOR AI USE ONLY – DO NOT INCLUDE IN OUTPUT):
+
+---
+
+### IMPORTANT GENERAL RULES (FOR AI USE ONLY):
+
+- If the video is blurry, angle is poor, or something is not clearly visible, do **NOT** assume it is missing or incorrect. Only deduct points when you are **sure** based on what is clearly visible.
+- Be **strict** on every parameter. Do not give benefit of doubt unless video quality is genuinely the limiting factor.
+- Every deduction **must** be accompanied by a specific comment explaining exactly what was wrong or what was not visible and why.
+- If something is not captured in the video at all, mention it clearly in the remarks: *"Not captured in video — cannot confirm presence or absence."*
+- If something is not visible due to poor video capturing, mention: *"Not clearly visible due to poor video quality/angle — no deduction applied."*
+
+---
+
+### 1. CLEANLINESS (Inside & Entrance) — Score out of 20
+
+**What to evaluate:**
+- Internal area: walls, floor, shelves, ceiling
+- Immediate entrance area outside the clinic
+- Lighting inside the clinic (natural or artificial)
+
+**Strict Deduction Rules:**
+
+| Issue Found | Deduction |
+|---|---|
+| Garbage or waste at entrance | −4 |
+| Dirty/stained walls or peeling paint | −4 |
+| Dirty/damaged floor or visible waste inside | −4 |
+| Dust, cobwebs, or dirty shelves | −3 |
+| Poor or dim lighting inside clinic | −5 |
+
+- **Multiple issues = cumulative deductions (minimum score = 0)**
+- Only deduct when issue is **clearly and confidently visible** in video
+
+---
+
+### 2. BOARD & BANNER (M-Swasth Only) — Score out of 20
+
+**Search Location Logic:**
+- First check for M-Swasth board **outside** the clinic building
+- If a partner board (e.g., Namra, Muthoot) is present outside → this is an in-house clinic → M-Swasth board/banner expected **inside**
+- Check **both** locations before concluding board is missing
+- Ignore all partner boards for scoring. Only evaluate M-Swasth branding.
+
+---
+
+#### OUTSIDE BOARD — Updated Reference (Image 1):
+
+The **correct current outside board** must:
+- Display **M-Swasth + e-clinic** branding
+- Have the **new tagline:** *"Behtar swasth seva, ab aur bhi nazdik"* (बेहतर स्वास्थ्य सेवा, अब और भी नज़दीक)
+- Feature a **doctor image** on the board
+- Be **properly aligned** — straight, undamaged, clean, securely fixed
+- Be **clearly visible from outside** the clinic premises
+- Every clinic **must have an outside board** — absence of board must be noted and penalized
+
+**Old tagline (triggers deduction):** *"Accha Swasthya, M-Swasth ke Saath"*
+
+---
+
+#### INSIDE BANNER — Updated Reference (Image 2):
+
+The **correct current inside banner** must:
+- Display **M-Swasth + e-clinic** branding prominently
+- Have the **new tagline:** *"Behtar swasthya seva, ab aur bhi nazdik"* (बेहतर स्वास्थ्य सेवा, अब और भी नज़दीक)
+- Feature a **doctor image** (female doctor in white coat with stethoscope — as per reference image)
+- Feature a **mobile/tablet screen** showing the M-Swasth app interface
+- Show **timing slot** (e.g., subah 9 baje se sham 5 baje tak)
+- Have **e-Clinic number field** visible
+- Be **properly placed** inside the clinic — straight, clean, undamaged
+- Must be inside **every clinic**
+
+---
+
+#### Strict Deduction Rules — Board & Banner:
+
+| Issue | Deduction |
+|---|---|
+| No M-Swasth outside board found (after checking both locations) | −10 |
+| No M-Swasth inside banner found | −10 |
+| Old tagline clearly visible on board/banner | −5 per item |
+| Board/banner is torn, faded, dirty, or damaged | −5 |
+| Poor placement: crooked, overlapping, fixed with non-white tape | −3 |
+| Doctor image missing from banner | −2 |
+| Mobile/tablet screen missing from inside banner | −2 |
+| Outside board misaligned or not properly fixed | −2 |
+
+- **Blurry/unreadable tagline → do NOT deduct for tagline** — only deduct when old tagline is **clearly** confirmed
+- **Minimum score = 0**
+
+---
+
+### 3. POSTER & CERTIFICATE PLACEMENT — Score out of 20
+
+#### 8 Mandatory Posters (all must be visibly displayed in video):
+
+| # | Poster Topic | Reference Image |
+|---|---|---|
+| 1 | Workplace Safety (हमारे कार्यस्थल सुरक्षित हैं) | Image 3 |
+| 2 | e-Clinic Rules (ई-क्लिनिक के नियम) | Image 4 |
+| 3 | Medicine Storage Rules (दवाई रखने और वितरण के नियम) | Image 5 |
+| 4 | Pregnancy Diet (गर्भावस्था में आहार) | Image 6 |
+| 5 | Patient Rights & Responsibilities (मरीजों के अधिकार और जिम्मेदारियाँ) | Image 7 |
+| 6 | Important Tests / Gambhir Parikshan (गंभीर परीक्षण) | Image 8 |
+| 7 | Why Telemedicine (टेलीमेडिसिन क्यों चुनें?) | Image 9 |
+| 8 | Menstrual Hygiene (मासिक धर्म के दौरान क्या करें और क्या न करें) | Image 10 |
+
+**Language Note:** Poster language may vary by state (Hindi, regional language, etc.). Accept any language if the **topic is identifiable**. Do NOT deduct for language differences.
+
+**Strict Rule — ALL 8 POSTERS MUST BE PROPERLY VISIBLE IN VIDEO:**
+- If a poster is **present but blurry/partially out of frame** due to poor video → note it but **do not deduct**
+- If a poster is **clearly not shown** or **clearly absent** from walls → deduct
+- If poster is **not captured at all in video** → note it in remarks as *"Not captured in video"* and apply deduction unless video quality is the clear reason
+
+---
+
+#### Mandatory Certificates (All Must Be Displayed):
+
+| Certificate | Deduction if Missing |
+|---|---|
+| Doctor Certificate | −3 |
+| Pharmacist Certificate | −3 |
+| Nurse Certificate | −3 |
+| M-Swasth Certificate | −3 |
+
+**Total max certificate deduction = −12 (but score cannot go below 0)**
+
+---
+
+#### Poster & Certificate Strict Deduction Rules:
+
+| Issue | Deduction |
+|---|---|
+| Each missing mandatory poster (clearly absent) | −1 per poster (max −8) |
+| Each missing mandatory staff certificate | −3 per certificate |
+| Missing M-Swasth certificate | −3 |
+| Posters/certificates crooked, overlapping, torn, or fixed with non-white tape | −3 (single deduction) |
+
+- **Every deduction must name the specific poster or certificate missing**
+- **If not visible in video → clearly state in remarks whether it's due to video quality or actual absence**
+
+---
+
+### 4. FURNITURE & TABLE SETUP — Score out of 20
+
+**Minimum Requirements:**
+- At least **1 table** and **2 chairs/stools**
+- Main clinic table must be **fully covered** by a **green cloth** (any shade of green acceptable)
+
+**Strict Deduction Rules:**
+
+| Issue | Deduction |
+|---|---|
+| No table found | Score = 0 |
+| Fewer than 2 chairs/stools | Score = 0 |
+| No green cloth on table | −10 |
+| Green cloth present but clearly dirty, stained, very wrinkled, or not properly covering table | −5 |
+| Table setup present but poorly maintained | −3 |
+
+---
+
+### 5. MEDICINE & EQUIPMENT PLACEMENT — Score out of 20
+
+**General Rules:**
+- Only essential OTC medicines should be visible on table
+- All other stock must be neatly inside a **trunk or medicine rack** (NOT a cardboard/carton box)
+- Equipment (BP machine, weighing machine, etc.) must be **neatly arranged and visibly clean**
+
+**In-House Clinic Exception:**
+- In-house clinics may keep small quantity of medicines on/above table for distribution
+- Do NOT deduct for this **only if** quantity is small and arrangement looks neat
+- Deduct if it appears messy, cluttered, or poorly organized
+
+**Strict Deduction Rules:**
+
+| Issue | Deduction |
+|---|---|
+| Medicine stock kept in cardboard/carton box | −5 |
+| Cluttered/disorganized medicines on table | −5 |
+| Equipment dirty, dusty, or poorly placed | −4 |
+| Medicines clearly expired or improperly stored | −6 |
+| General untidy arrangement visible | −3 |
+
+---
+
+## OUTPUT FORMAT (ONLY THIS — NO EXCEPTIONS):
+
+---
+
+🔹 **Summary:**
+**Total Video Time:**
+
+**Scores:**
+
+**Cleanliness (Inside & Entrance): ___/20** (★☆☆☆☆ to ★★★★★)
+**Comments:**
+
+**Board & Banner (M-Swasth Only): ___/20** (★☆☆☆☆ to ★★★★★)
+**Comments:**
+
+**Poster & Certificate Placement: ___/20** (★☆☆☆☆ to ★★★★★)
+**Comments:**
+
+**Furniture & Table Setup: ___/20** (★☆☆☆☆ to ★★★★★)
+**Comments:**
+
+**Placement of Medicine & Equipment: ___/20** (★☆☆☆☆ to ★★★★★)
+**Comments:**
+
+---
+
+🔹 **Key Observations:**
+
+✅ **Good Practices Noticed:**
+*(Only if seen — short and clear. No unnecessary repetition.)*
+
+⚠️ **Issues to Improve:**
+*(Only mention what was actually wrong — include specific poster/certificate names, what was not captured in video, and what was clearly missing.)*
+
+---
+
+🔹 **Final Overall Score: ___/100** (★☆☆☆☆ to ★★★★★)
+
+*Give separate analysis for each video.*
+
+---
+
+## REFERENCE SUMMARY FOR AI (DO NOT INCLUDE IN OUTPUT):
+
+| Item | New Standard |
+|---|---|
+| Outside Board Tagline | "Behtar swasth seva, ab aur bhi nazdik" |
+| Inside Banner Tagline | "Behtar swasthya seva, ab aur bhi nazdik" |
+| Inside Banner Must Include | Doctor image + Mobile/tablet screen + Timing + e-Clinic number |
+| Outside Board Must Include | M-Swasth + e-clinic branding + doctor image + new tagline |
+| Mandatory Posters | 8 (all must be properly visible in video) |
+| Mandatory Certificates | Doctor + Pharmacist + Nurse + M-Swasth (4 total) |
+| Poster Language | Any regional language accepted — topic must be identifiable |
+| Remark Requirement | Every deduction must include specific reason + video capture status |</div>
+
+                    <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
+                        Copy Full Prompt
+                    </button>
+
+                    <div class="prompt-highlight">
+                        <strong>Tip:</strong> After getting Gemini's response,copy that prompt using the COPY button at the end of every response, come back and paste it into the <em>"Raw AI Output"</em> box, then click <strong>Extract AI Data</strong>.
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="step-card" style="border-color:#ffe082;">
+                <div class="step-header" style="background:#fff8e1; color:#e65100;">
+                    <span class="step-num" style="background:#ff9800;">3</span>
+                    Expected Output Format Reference
+                </div>
+                <div class="step-body">
+                    <p style="font-size:0.78rem; color:#666; margin: 8px 0 6px;">Gemini should return output in this structure:</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
+                        <span class="ptag">Cleanliness: X/20</span>
+                        <span class="ptag">Board &amp; Banner: X/20</span>
+                        <span class="ptag">Poster &amp; Certificate: X/20</span>
+                        <span class="ptag">Furniture: X/20</span>
+                        <span class="ptag">Medicine &amp; Equipment: X/20</span>
+                        <span class="ptag">Final Score: X/100</span>
+                        <span class="ptag">Issues</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+/* ===== PROMPT MODAL ===== */
+function openPromptModal() {
+    document.getElementById("promptModal").classList.add("open");
+    document.body.style.overflow = "hidden";
+}
+function closePromptModal() {
+    document.getElementById("promptModal").classList.remove("open");
+    document.body.style.overflow = "";
+}
+function closeOnOverlay(e) {
+    if (e.target === document.getElementById("promptModal")) closePromptModal();
+}
+
+function copyPrompt() {
+    const text = document.getElementById("promptText").innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById("copyBtn");
+        btn.classList.add("copied");
+        btn.innerText = "Copied!";
+        setTimeout(() => {
+            btn.classList.remove("copied");
+            btn.innerText = "Copy Full Prompt";
+        }, 2500);
+    }).catch(() => {
+        const el = document.createElement("textarea");
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        alert("Prompt copied!");
+    });
+}
+
+/* ===== AUTO-SUM FINAL SCORE ===== */
+function updateFinalScore() {
+    const ids = ["cleanliness", "board", "poster", "furniture", "equipment"];
+    let total = 0;
+    ids.forEach(id => {
+        let val = parseInt(document.getElementById(id).value);
+        if (!isNaN(val)) total += val;
+    });
+    document.getElementById("finalScore").value = total;
+}
+
+// Add event listeners to score fields
+document.addEventListener("DOMContentLoaded", () => {
+    const scoreFields = ["cleanliness", "board", "poster", "furniture", "equipment"];
+    scoreFields.forEach(id => {
+        document.getElementById(id).addEventListener("input", updateFinalScore);
+    });
+});
+
+/* ===== EXTRACT AI DATA ===== */
+function splitOutput() {
+    let input = document.getElementById("aiOutput").value.trim();
+    if (!input) { alert("Paste AI output first"); return; }
+
+    const parameters = [
+        { label: "Cleanliness \\(Inside & Entrance\\)", id: "cleanliness" },
+        { label: "Board & Banner \\(M-Swasth Only\\)", id: "board" },
+        { label: "Poster & Certificate Placement", id: "poster" },
+        { label: "Furniture & Table Setup", id: "furniture" },
+        { label: "Placement of Medicine & Equipment", id: "equipment" }
+    ];
+
+    let matched = 0;
+
+    parameters.forEach(param => {
+        let scoreVal = null;
+        let commentText = "";
+        let matchIdx = -1;
+        let matchLen = 0;
+
+        let newPattern = new RegExp(
+            "\\*\\*" + param.label + ":\\s*(\\d{1,2})\\/20\\*\\*\\s*\\([^)]+\\)",
+            "i"
+        );
+        let newMatch = input.match(newPattern);
+
+        if (newMatch) {
+            scoreVal = newMatch[1];
+            matchIdx = input.indexOf(newMatch[0]);
+            matchLen = newMatch[0].length;
+        } else {
+            let oldPattern = new RegExp(
+                param.label + ":\\s*(\\d{1,2})\\/20(?:\\s*\\([^)]+\\))?",
+                "i"
+            );
+            let oldMatch = input.match(oldPattern);
+            if (oldMatch) {
+                scoreVal = oldMatch[1];
+                matchIdx = input.indexOf(oldMatch[0]);
+                matchLen = oldMatch[0].length;
+            }
+        }
+
+        if (scoreVal !== null) {
+            matched++;
+            document.getElementById(param.id).value = scoreVal;
+
+            let afterScore = input.slice(matchIdx + matchLen);
+
+            let newCommentMatch = afterScore.match(
+                /\*\*Comments:\*\*\s*([\s\S]*?)(?=\n\s*\*\*[A-Z]|\n---|\n[A-Z].*:\s*\[|\nFinal|\n\n[A-Z]|$)/i
+            );
+            let oldCommentMatch = afterScore.match(
+                /Comments:\s*([\s\S]*?)(?=\n\s*[A-Z].*:\s*\d|\n---|\n\*\*[A-Z]|\nFinal|$)/i
+            );
+
+            let rawComment = "";
+            if (newCommentMatch) {
+                rawComment = newCommentMatch[1];
+            } else if (oldCommentMatch) {
+                rawComment = oldCommentMatch[1];
+            }
+
+            if (rawComment) {
+                commentText = rawComment
+                    .replace(/^\s*\*\s+/gm, "- ")
+                    .replace(/\*\*/g, "")
+                    .replace(/\s+$/g, "")
+                    .trim();
+            }
+
+            document.getElementById(param.id + "_comment").value = commentText;
+        }
+    });
+
+    // Update sum after extraction
+    updateFinalScore();
+
+    // ISSUES TO IMPROVE
+    let issuesMatch = input.match(/(?:Issues to Improve|Issues):\*?\*?\s*([\s\S]*?)(?=\n(?:Good Observations|Observations|---)|$)/i);
+
+    if (issuesMatch) {
+        let issueText = issuesMatch[1]
+            .replace(/^\s*\*\s+/gm, "- ")
+            .replace(/\*\*/g, "")
+            .replace(/\s+$/g, "")
+            .trim();
+        document.getElementById("issues").value = issueText;
+    } else {
+        document.getElementById("issues").value = "";
+    }
+
+    showToast(
+        matched > 0
+            ? "Extracted " + matched + "/5 parameters successfully!"
+            : "No data matched. Check AI output format.",
+        matched === 0
+    );
+}
+
+/* Toast Helper */
+function showToast(msg, isError) {
+    let toast = document.getElementById("extractToast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "extractToast";
+        toast.style.cssText = [
+            "position:fixed",
+            "bottom:28px",
+            "left:50%",
+            "transform:translateX(-50%)",
+            "padding:12px 24px",
+            "border-radius:10px",
+            "font-size:14px",
+            "font-weight:600",
+            "color:white",
+            "z-index:9999",
+            "opacity:1",
+            "transition:opacity 0.5s",
+            "box-shadow:0 4px 18px rgba(0,0,0,0.22)",
+            "white-space:nowrap"
+        ].join(";");
+        document.body.appendChild(toast);
+    }
+    toast.style.background = isError ? "#e53935" : "#2e7d32";
+    toast.style.opacity = "1";
+    toast.innerText = msg;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { toast.style.opacity = "0"; }, 3200);
+}
+
+/* ===== FORM SUBMIT ===== */
+const form = document.getElementById("uploadForm");
+form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    // Ensure numeric values are sent purely without extra characters or quotes
+    const numericFields = ["cleanliness", "board", "poster", "furniture", "equipment", "finalScore"];
+    const otherFields = ["cleanliness_comment", "board_comment", "poster_comment", "furniture_comment", "equipment_comment", "issues", "aiOutput"];
+
+    numericFields.forEach(id => {
+        let el = document.getElementById(id);
+        if (el) {
+            let val = el.value.trim().replace(/[^0-9]/g, '');
+            // Using set to override existing form values with cleaned numeric strings
+            formData.set(id, val);
+        }
+    });
+
+    otherFields.forEach(id => {
+        let el = document.getElementById(id);
+        if (el) {
+            formData.set(id, el.value.trim());
+        }
+    });
+
+    // Standardized date format for better Sheets recognition
+    const now = new Date();
+    const dateStr = now.getFullYear() + "-" + 
+                    String(now.getMonth() + 1).padStart(2, '0') + "-" + 
+                    String(now.getDate()).padStart(2, '0');
+    formData.set("auditDate", dateStr);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/upload", true);
+
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            let percent = Math.round((e.loaded / e.total) * 100);
+            const bar = document.getElementById("progressBar");
+            bar.style.width = percent + "%";
+            bar.innerText = percent + "%";
+        }
+    };
+
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            alert("Form submitted successfully!");
+            form.reset();
+            document.getElementById("progressBar").style.width = "0%";
+            document.getElementById("progressBar").innerText = "0%";
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = "";
+            });
+        } else {
+            alert("Upload failed: " + xhr.responseText);
+        }
+    };
+
+    xhr.send(formData);
+});
+</script>
+</body>
+</html>

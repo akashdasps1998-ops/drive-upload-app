@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>M-Swasth Clinic Audit Guidelines</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #e8f0fe 0%, #f4f6f9 60%, #e8f5e9 100%);
+    min-height: 100vh;
+    padding: 30px 16px 50px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.13);
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+    padding: 36px 40px 30px;
+    text-align: center;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    height: 5px;
+    background: linear-gradient(90deg, #43a047, #66bb6a, #43a047);
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+  }
+  .header h1 { color: #fff; font-size: 1.9rem; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .header .subtitle { color: #bbdefb; font-size: 0.97rem; }
+  .header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 30px;
+    padding: 6px 22px;
+    font-size: 0.83rem;
+    font-weight: 700;
+    margin-top: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── SCORE PILLS ── */
+  .score-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: #f8faff;
+    padding: 18px 24px;
+    border-bottom: 1px solid #e3e8f0;
+  }
+  .score-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1.5px solid #e0e7ff;
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: 0.79rem;
+    font-weight: 700;
+    color: #3c4a6e;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+  /* ── BODY ── */
+  .body-content { padding: 30px 34px 40px; }
+
+  /* ── SECTION CARD ── */
+  .section-card {
+    border-radius: 13px;
+    border: 1.5px solid #e3e8f0;
+    margin-bottom: 22px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .section-card:hover { box-shadow: 0 4px 24px rgba(26,115,232,0.10); }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-header-left { display: flex; align-items: center; gap: 13px; }
+  .section-icon {
+    width: 44px; height: 44px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+  }
+  .section-title { font-size: 1.02rem; font-weight: 800; color: #1a237e; line-height: 1.2; }
+  .section-sub { font-size: 0.76rem; color: #7986cb; margin-top: 2px; font-weight: 500; }
+  .score-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 60px; padding: 5px 14px;
+    border-radius: 20px; font-size: 0.83rem; font-weight: 800; flex-shrink: 0;
+  }
+  .chevron { margin-left: 10px; font-size: 0.85rem; color: #9ea7c8; transition: transform 0.25s; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .section-body { padding: 0 22px 20px; display: none; border-top: 1px solid #f0f3fa; }
+  .section-body.open { display: block; }
+
+  /* ── LABELS ── */
+  .inspect-label {
+    font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.9px;
+    color: #90a4ae; margin: 16px 0 8px;
+  }
+
+  /* ── DEFINITION BOX ── */
+  .def-box {
+    background: #f7f9ff;
+    border-left: 4px solid #5c6bc0;
+    border-radius: 0 8px 8px 0;
+    padding: 11px 15px;
+    margin-top: 14px;
+    font-size: 0.845rem;
+    color: #37474f;
+    line-height: 1.65;
+  }
+  .def-box strong { color: #283593; }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; padding: 0; margin: 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 9px;
+    font-size: 0.875rem; color: #37474f;
+    padding: 6px 0; line-height: 1.55;
+    border-bottom: 1px dashed #f0f3fa;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-icon {
+    margin-top: 2px; width: 17px; height: 17px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.62rem; flex-shrink: 0; font-weight: 800;
+  }
+  .check-green { background: #e8f5e9; color: #2e7d32; }
+  .check-blue  { background: #e3f2fd; color: #1565c0; }
+  .check-purple{ background: #f3e5f5; color: #6a1b9a; }
+  .check-orange{ background: #fff3e0; color: #e65100; }
+
+  /* ── SUB-PARAMETER TABLE ── */
+  .param-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.84rem; }
+  .param-table th {
+    background: #e8eaf6; color: #283593;
+    padding: 8px 11px; text-align: left;
+    font-size: 0.75rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.7px;
+  }
+  .param-table td { padding: 8px 11px; border-bottom: 1px solid #f0f3fa; color: #37474f; vertical-align: top; line-height: 1.5; }
+  .param-table tr:last-child td { border-bottom: none; }
+  .param-table tr:hover td { background: #f8faff; }
+
+  /* ── DEDUCTION TABLE ── */
+  .ded-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.84rem; }
+  .ded-table th {
+    background: #ffebee; color: #c62828;
+    padding: 8px 11px; text-align: left;
+    font-size: 0.75rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.7px;
+  }
+  .ded-table td { padding: 8px 11px; border-bottom: 1px solid #ffcdd2; color: #b71c1c; vertical-align: top; line-height: 1.5; }
+  .ded-table tr:last-child td { border-bottom: none; }
+  .ded-table .pts {
+    font-weight: 800; background: #ffcdd2;
+    color: #c62828; border-radius: 5px;
+    padding: 2px 8px; white-space: nowrap; font-size: 0.82rem;
+  }
+  .ded-block {
+    background: #fff8f8;
+    border: 1.5px solid #ffcdd2;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 16px;
+  }
+  .ded-title {
+    font-size: 0.73rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: #c62828; margin-bottom: 10px;
+  }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    border-radius: 8px; padding: 10px 14px;
+    margin-top: 12px; font-size: 0.83rem; line-height: 1.55; font-weight: 500;
+  }
+  .info-blue  { background: #e3f2fd; border-left: 4px solid #1e88e5; color: #1565c0; }
+  .info-green { background: #e8f5e9; border-left: 4px solid #43a047; color: #2e7d32; }
+  .info-orange{ background: #fff3e0; border-left: 4px solid #fb8c00; color: #e65100; }
+  .info-purple{ background: #f3e5f5; border-left: 4px solid #8e24aa; color: #6a1b9a; }
+  .info-red   { background: #fff8f8; border-left: 4px solid #e53935; color: #b71c1c; }
+
+  /* ── POSTER GRID ── */
+  .poster-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 8px;
+  }
+  .poster-item {
+    display: flex; align-items: flex-start; gap: 9px;
+    background: #f3f6ff; border-radius: 9px;
+    padding: 9px 12px; font-size: 0.82rem;
+    color: #283593; font-weight: 600; line-height: 1.45;
+  }
+  .poster-num {
+    background: #3949ab; color: #fff;
+    border-radius: 5px; padding: 1px 7px;
+    font-size: 0.75rem; font-weight: 800;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── CERT GRID ── */
+  .cert-grid { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 8px; }
+  .cert-item {
+    display: flex; align-items: center; gap: 8px;
+    background: #e8f5e9; border-radius: 9px;
+    padding: 8px 14px; font-size: 0.82rem;
+    color: #2e7d32; font-weight: 700;
+    border: 1.5px solid #c8e6c9;
+  }
+
+  /* ── VIDEO CAPTURE SECTION ── */
+  .video-section-card {
+    border-radius: 13px;
+    border: 2px solid #ffe082;
+    margin-bottom: 22px;
+    overflow: hidden;
+    background: #fffde7;
+  }
+  .video-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 20px; cursor: pointer; user-select: none;
+    background: linear-gradient(135deg, #fff8e1, #fffde7);
+  }
+
+  .step-list { list-style: none; padding: 0; margin: 0; }
+  .step-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0; border-bottom: 1px dashed #ffe082;
+    font-size: 0.875rem; color: #37474f; line-height: 1.55;
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-num {
+    background: #f57f17; color: #fff;
+    border-radius: 50%; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 800; flex-shrink: 0;
+  }
+
+  .rule-list { list-style: none; padding: 0; margin: 0; }
+  .rule-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0; border-bottom: 1px dashed #e0e0e0;
+    font-size: 0.86rem; color: #37474f; line-height: 1.5;
+  }
+  .rule-list li:last-child { border-bottom: none; }
+  .rule-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+  .ai-check-list { list-style: none; padding: 0; margin: 0; }
+  .ai-check-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0; border-bottom: 1px dashed #bbdefb;
+    font-size: 0.86rem; color: #1a237e; line-height: 1.5;
+  }
+  .ai-check-list li:last-child { border-bottom: none; }
+  .ai-badge {
+    background: #1e88e5; color: #fff;
+    border-radius: 4px; padding: 1px 7px;
+    font-size: 0.72rem; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+  }
+
+  .mistake-list { list-style: none; padding: 0; margin: 0; }
+  .mistake-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0; border-bottom: 1px dashed #ffcdd2;
+    font-size: 0.86rem; color: #b71c1c; line-height: 1.5;
+  }
+  .mistake-list li:last-child { border-bottom: none; }
+  .x-mark { flex-shrink: 0; font-weight: 900; color: #e53935; font-size: 1rem; }
+
+  /* ── GENERAL RULES ── */
+  .gen-rule-list { list-style: none; padding: 0; margin: 0; }
+  .gen-rule-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px dashed #e0e0e0;
+    font-size: 0.875rem; color: #37474f; line-height: 1.55;
+  }
+  .gen-rule-list li:last-child { border-bottom: none; }
+  .gr-num {
+    background: #5c6bc0; color: #fff;
+    border-radius: 50%; width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+  }
+
+  /* ── REMARK TEMPLATES ── */
+  .remark-box {
+    background: #f3f6ff;
+    border: 1.5px solid #c5cae9;
+    border-radius: 9px;
+    padding: 12px 15px;
+    margin-top: 10px;
+    font-size: 0.83rem;
+    color: #283593;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* ── FINAL CARD ── */
+  .final-card {
+    background: linear-gradient(135deg, #fff8e1, #fffde7);
+    border: 1.5px solid #ffe082;
+    border-radius: 13px;
+    padding: 22px 26px;
+    margin-top: 8px;
+  }
+  .final-title { font-size: 1rem; font-weight: 800; color: #e65100; margin-bottom: 14px; display: flex; align-items: center; gap: 9px; }
+  .final-list { list-style: none; padding: 0; margin: 0; }
+  .final-list li {
+    display: flex; align-items: flex-start; gap: 11px;
+    font-size: 0.875rem; color: #4e342e;
+    padding: 7px 0; border-bottom: 1px dashed #ffe082; line-height: 1.55;
+  }
+  .final-list li:last-child { border-bottom: none; }
+  .fi { flex-shrink: 0; font-size: 1rem; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: #f8faff;
+    border-top: 1px solid #e3e8f0;
+    padding: 18px 34px;
+    text-align: center;
+    font-size: 0.79rem;
+    color: #9ea7c8;
+  }
+  .footer strong { color: #5c6bc0; }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1.2px; color: #b0bec5; margin: 28px 0 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: ''; flex: 1; height: 1px; background: #e3e8f0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 620px) {
+    .body-content { padding: 18px 14px 28px; }
+    .header { padding: 26px 18px 24px; }
+    .header h1 { font-size: 1.35rem; }
+    .poster-grid { grid-template-columns: 1fr; }
+    .score-bar { gap: 7px; }
+    .footer { padding: 14px 16px; }
+    .param-table, .ded-table { font-size: 0.79rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ══════════════════ HEADER ══════════════════ -->
+  <div class="header">
+    <h1>📘 M-Swasth Clinic Audit Guidelines</h1>
+    <div class="subtitle">Complete Evaluation Framework for AI &amp; Re-Audit Agents</div>
+    <div class="badge">Total Score: 100 Points &nbsp;|&nbsp; 5 Audit Categories &nbsp;|&nbsp; 20 Points Each</div>
+  </div>
+
+  <!-- ══════════════════ SCORE PILLS ══════════════════ -->
+  <div class="score-bar">
+    <div class="score-pill"><span class="dot" style="background:#43a047;"></span>Cleanliness — 20 pts</div>
+    <div class="score-pill"><span class="dot" style="background:#1e88e5;"></span>Board &amp; Banner — 20 pts</div>
+    <div class="score-pill"><span class="dot" style="background:#8e24aa;"></span>Posters &amp; Certs — 20 pts</div>
+    <div class="score-pill"><span class="dot" style="background:#f4511e;"></span>Furniture — 20 pts</div>
+    <div class="score-pill"><span class="dot" style="background:#00897b;"></span>Medicine &amp; Equip — 20 pts</div>
+    <div class="score-pill"><span class="dot" style="background:#f57f17;"></span>🎥 Video Protocol</div>
+  </div>
+
+  <!-- ══════════════════ BODY ══════════════════ -->
+  <div class="body-content">
+
+    <!-- ─────────────── SECTION 0: VIDEO CAPTURE GUIDELINES ─────────────── -->
+    <div class="section-divider">🎥 Video Capture Protocol</div>
+
+    <div class="video-section-card">
+      <div class="video-section-header" onclick="toggle('sv','cv')">
+        <div class="section-header-left">
+          <div class="section-icon" style="background:#fff8e1; font-size:1.4rem;">🎥</div>
+          <div>
+            <div class="section-title" style="color:#e65100;">Video Capture Guidelines for Clinic Nurses</div>
+            <div class="section-sub" style="color:#f9a825;">How to record the clinic walkthrough video for audit — mandatory protocol</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="score-badge" style="background:#fff3e0;color:#e65100;">MANDATORY</span>
+          <span class="chevron open" id="cv">▼</span>
+        </div>
+      </div>
+      <div class="section-body open" id="sv" style="background:#fffde7; border-top:1px solid #ffe082;">
+
+        <div class="def-box" style="border-color:#f57f17; background:#fff8e1;">
+          <strong>Purpose:</strong> The clinic walkthrough video is the only source of information for AI audit evaluation. If something is not captured properly in the video, the AI cannot confirm its presence. Nurses must follow this protocol strictly to avoid incorrect deductions due to poor recording.
+        </div>
+
+        <div class="inspect-label" style="color:#f57f17;">📋 Step-by-Step Recording Protocol</div>
+        <ul class="step-list">
+          <li>
+            <span class="step-num">1</span>
+            <div><strong>Start from Outside / Entrance:</strong> Begin recording from outside the clinic building. Walk slowly toward the entrance. Capture the full entrance area — ground, door, outside walls. Ensure no garbage or waste at entrance is missed. Hold steady for at least <strong>4–5 seconds</strong> at the entrance.</div>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <div><strong>Capture the Outside M-Swasth Board:</strong> Point the camera directly at the outside board. <strong>Zoom in slightly</strong> so the tagline, doctor image, and branding are clearly readable. Hold for a minimum of <strong>3 seconds</strong>. Do not walk past it quickly. If the board is high up, angle the camera upward and hold steady.</div>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <div><strong>Enter the Clinic &amp; Capture Inside Banner:</strong> After entering, immediately pan to show the inside M-Swasth banner. <strong>Zoom in</strong> on the tagline, doctor image, mobile screen, timing slot, and e-clinic number. Hold for <strong>at least 3 seconds</strong>. Ensure the full banner is in frame — top to bottom.</div>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <div><strong>Capture All 8 Mandatory Posters — One by One:</strong> Walk to each poster individually. <strong>Hold the camera steady in front of each poster for a minimum of 3 seconds.</strong> Zoom in enough so the poster title/topic is clearly readable. Do not pan all posters in one sweeping shot — each poster must be shown separately. Confirm all 8 are captured before moving on.</div>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <div><strong>Capture All 4 Certificates:</strong> Point camera at the certificates display area. Zoom in on each certificate — Doctor, Pharmacist, Nurse, and M-Swasth. Hold each for <strong>3 seconds</strong>. Ensure the certificate name/type is clearly visible in frame.</div>
+          </li>
+          <li>
+            <span class="step-num">6</span>
+            <div><strong>Capture Walls, Floor &amp; Ceiling:</strong> Slowly pan across all four walls. Show the floor from multiple angles. Briefly look upward to capture ceiling/upper wall area. Check for stains, cobwebs, peeling paint, or damage. Walk slowly — do not rush this section.</div>
+          </li>
+          <li>
+            <span class="step-num">7</span>
+            <div><strong>Capture Lighting Conditions:</strong> While walking through the clinic, ensure the ambient lighting is visible. Do not use flash — let the natural/artificial lighting be captured as-is. The AI will assess lighting conditions from this footage.</div>
+          </li>
+          <li>
+            <span class="step-num">8</span>
+            <div><strong>Capture Table &amp; Furniture Setup:</strong> Show the full table from the front and side. <strong>Zoom in</strong> on the green cloth — check that it fully covers the table. Show both chairs/stools clearly. Hold for <strong>3–4 seconds</strong> on the table and again on the chairs.</div>
+          </li>
+          <li>
+            <span class="step-num">9</span>
+            <div><strong>Capture Medicine Storage &amp; Equipment:</strong> Open the trunk or show the medicine rack clearly. Zoom in to show how medicines are arranged. Show the BP machine, weighing machine, and any other equipment. Zoom in on each piece of equipment. Hold each for <strong>3 seconds</strong>. If medicines are on the table, capture them clearly too.</div>
+          </li>
+          <li>
+            <span class="step-num">10</span>
+            <div><strong>Final Wide Shot:</strong> End the video with a slow 360° pan of the entire clinic interior so the AI can assess the overall setup, space, and general organization from a single wide-angle view.</div>
+          </li>
+        </ul>
+
+        <div class="inspect-label" style="color:#f57f17;">🔑 8 Golden Rules for Video Recording</div>
+        <div style="background:#fff3e0; border:1.5px solid #ffe082; border-radius:10px; padding:14px 16px;">
+          <ul class="rule-list">
+            <li><span class="rule-icon">⏱️</span><div><strong>Hold every item for at least 3 seconds:</strong> Boards, banners, each poster, each certificate, table, medicines, equipment — all must be held steady for a minimum of 3 seconds. Fast panning will cause AI to mark items as "not captured."</div></li>
+            <li><span class="rule-icon">🔍</span><div><strong>Zoom in on text and branding:</strong> Taglines, poster titles, certificate names, medicine labels — zoom in slightly so text is readable. The AI reads content from the video; blurry text cannot be verified.</div></li>
+            <li><span class="rule-icon">🚶</span><div><strong>Walk slowly and steadily:</strong> Move at a slow walking pace throughout the clinic. Do not rush or jog. Shaky or fast-moving footage cannot be analyzed accurately.</div></li>
+            <li><span class="rule-icon">💡</span><div><strong>Do not use flash or torch light:</strong> Use existing clinic lighting only. Flash creates glare and hides actual lighting conditions from the AI assessment.</div></li>
+            <li><span class="rule-icon">📐</span><div><strong>Keep camera level and straight:</strong> Hold the phone horizontally where possible. Keep the camera at eye level. Avoid extreme angles that cut off top or bottom of boards, banners, or posters.</div></li>
+            <li><span class="rule-icon">📝</span><div><strong>All 8 posters must be individually captured:</strong> Do not group multiple posters in a single shot. Each poster must be a separate, clear, held shot. Missing even one poster shot will result in a deduction.</div></li>
+            <li><span class="rule-icon">🔄</span><div><strong>Follow the sequence:</strong> Outside → Board → Enter → Banner → Posters (1–8) → Certificates → Walls/Floor → Table → Medicines/Equipment → Final wide shot. Skipping steps will result in those items being marked as "not captured."</div></li>
+            <li><span class="rule-icon">📵</span><div><strong>Do not cut or pause recording mid-sequence:</strong> Record the entire walkthrough as one continuous video. Cutting and restarting the video creates confusion in sequence verification for the AI.</div></li>
+          </ul>
+        </div>
+
+        <div class="inspect-label" style="color:#1e88e5;">🤖 How AI Evaluates the Video — AI Check Criteria</div>
+        <div style="background:#e3f2fd; border:1.5px solid #bbdefb; border-radius:10px; padding:14px 16px;">
+          <ul class="ai-check-list">
+            <li><span class="ai-badge">CHECK 1</span><div><strong>Hold Duration Check:</strong> AI analyzes frame sequences to confirm each item was held steady for at least 3 seconds. Items with less than 3 seconds of stable focus will be flagged as "Insufficiently captured — cannot confirm."</div></li>
+            <li><span class="ai-badge">CHECK 2</span><div><strong>Zoom Adequacy Check:</strong> AI checks if text elements (taglines, poster titles, certificate names) are legible in the frame. If text is too small or blurry to read, AI will note "Not clearly visible due to poor zoom/video quality — no deduction applied" but will flag for re-capture.</div></li>
+            <li><span class="ai-badge">CHECK 3</span><div><strong>Blur &amp; Quality Check:</strong> If a frame is blurry due to camera movement, AI will NOT deduct points for that item — it will instead note "Not clearly visible due to poor video quality/angle — no deduction applied." Deductions only apply when content is clearly visible and clearly wrong.</div></li>
+            <li><span class="ai-badge">CHECK 4</span><div><strong>Coverage Check:</strong> AI verifies that all required items have been covered in the video — all 8 posters, 4 certificates, outside board, inside banner, table, medicines, entrance. Any item not shown at all will be flagged as "Not captured in video" and may attract a deduction.</div></li>
+            <li><span class="ai-badge">CHECK 5</span><div><strong>Sequence Logic Check:</strong> AI checks if the video follows a logical walkthrough sequence. Random or jumbled sequences may result in some items being missed or double-counted.</div></li>
+            <li><span class="ai-badge">CHECK 6</span><div><strong>Content Verification Check:</strong> For visible content (taglines, logos, cloth color, storage type), AI reads and verifies against the standard reference. Only issues that are clearly and confidently visible will result in deductions.</div></li>
+            <li><span class="ai-badge">CHECK 7</span><div><strong>Missing Area Flags:</strong> If entire areas are skipped (e.g., entrance never shown, no poster wall visible), AI will note this as a gap and apply appropriate deductions for items "not captured in video."</div></li>
+          </ul>
+        </div>
+
+        <div class="inspect-label" style="color:#c62828;">❌ Common Mistakes That Cause Score Loss</div>
+        <div style="background:#fff8f8; border:1.5px solid #ffcdd2; border-radius:10px; padding:14px 16px;">
+          <ul class="mistake-list">
+            <li><span class="x-mark">✗</span><div>Walking past the outside board without stopping — AI cannot read the tagline or verify branding</div></li>
+            <li><span class="x-mark">✗</span><div>Capturing all 8 posters in one wide sweeping pan — individual posters cannot be identified and verified separately</div></li>
+            <li><span class="x-mark">✗</span><div>Starting video from inside the clinic — entrance and outside board are missed entirely</div></li>
+            <li><span class="x-mark">✗</span><div>Recording in dim lighting or using flash — lighting condition cannot be assessed accurately</div></li>
+            <li><span class="x-mark">✗</span><div>Not zooming in on the green cloth — cloth condition (dirty/wrinkled/partial coverage) cannot be confirmed</div></li>
+            <li><span class="x-mark">✗</span><div>Stopping video before showing medicines and equipment — storage type and organization cannot be evaluated</div></li>
+            <li><span class="x-mark">✗</span><div>Recording from too far away — certificate names and poster titles become unreadable</div></li>
+            <li><span class="x-mark">✗</span><div>Holding phone vertically (portrait mode) — cuts off wide items like boards, banners, and full wall views</div></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─────────────── AUDIT SECTIONS ─────────────── -->
+    <div class="section-divider">📊 Audit Evaluation Parameters</div>
+
+    <!-- ══ SECTION 1: CLEANLINESS ══ -->
+    <div class="section-card" style="border-color:#c8e6c9;">
+      <div class="section-header" style="background:#f1f8e9;" onclick="toggle('s1','c1')">
+        <div class="section-header-left">
+          <div class="section-icon" style="background:#e8f5e9;">🧹</div>
+          <div>
+            <div class="section-title">1. Cleanliness (Inside &amp; Entrance)</div>
+            <div class="section-sub">Interior walls · floors · shelves · ceiling · entrance · lighting</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="score-badge" style="background:#e8f5e9;color:#2e7d32;">20 / 20</span>
+          <span class="chevron open" id="c1">▼</span>
+        </div>
+      </div>
+      <div class="section-body open" id="s1">
+
+        <div class="def-box">
+          <strong>Definition:</strong> This parameter evaluates the overall hygiene and presentation of the clinic — including its internal environment (walls, floor, shelves, ceiling) and the immediate outside entrance area. Adequate lighting is also assessed here. A clean, well-lit clinic reflects professional standards and patient safety.
+        </div>
+
+        <div class="inspect-label">📐 Sub-Parameters &amp; What to Check</div>
+        <table class="param-table">
+          <tr>
+            <th>Sub-Parameter</th>
+            <th>What Must Be Observed</th>
+            <th>Max Points</th>
+          </tr>
+          <tr>
+            <td><strong>Entrance Area</strong></td>
+            <td>No garbage, waste, or debris at the entrance or immediately outside the clinic door. Ground should be visibly clean.</td>
+            <td>4 pts</td>
+          </tr>
+          <tr>
+            <td><strong>Walls (Inside)</strong></td>
+            <td>Walls must be free from stains, marks, dirt, or peeling paint. All four walls should be checked. Paint must look maintained and clean.</td>
+            <td>4 pts</td>
+          </tr>
+          <tr>
+            <td><strong>Floor (Inside)</strong></td>
+            <td>Floor must be swept and clean. No visible waste, spills, or damage. No broken tiles or hazardous surfaces.</td>
+            <td>4 pts</td>
+          </tr>
+          <tr>
+            <td><strong>Shelves &amp; Surfaces</strong></td>
+            <td>All shelves, racks, and horizontal surfaces must be free from dust, cobwebs, and accumulated dirt. Items on shelves should look organized.</td>
+            <td>3 pts</td>
+          </tr>
+          <tr>
+            <td><strong>Ceiling / Upper Walls</strong></td>
+            <td>No cobwebs or dirt visible on ceiling or upper wall areas. Corners should be checked. Clean ceiling is expected.</td>
+            <td>included in walls</td>
+          </tr>
+          <tr>
+            <td><strong>Lighting</strong></td>
+            <td>Clinic interior must be adequately lit — either through natural light (windows/doors) or functional artificial lights. No dim, dark, or unlit sections inside the clinic.</td>
+            <td>5 pts</td>
+          </tr>
+        </table>
+
+        <div class="ded-block">
+          <div class="ded-title">⚠️ Deduction Table — Cleanliness</div>
+          <table class="ded-table">
+            <tr>
+              <th>Issue Found</th>
+              <th>Points Deducted</th>
+            </tr>
+            <tr>
+              <td>Garbage or waste clearly visible at entrance</td>
+              <td><span class="pts">−4 pts</span></td>
+            </tr>
+            <tr>
+              <td>Dirty/stained walls or peeling paint clearly visible inside</td>
+              <td><span class="pts">−4 pts</span></td>
+            </tr>
+            <tr>
+              <td>Dirty/damaged floor or visible waste/debris inside clinic</td>
+              <td><span class="pts">−4 pts</span></td>
+            </tr>
+            <tr>
+              <td>Dust, cobwebs, or dirty shelves/surfaces clearly visible</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+            <tr>
+              <td>Poor or dim lighting clearly visible inside the clinic</td>
+              <td><span class="pts">−5 pts</span></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="info-box info-blue">
+          🤖 <strong>AI Rule:</strong> Only deduct when the issue is <strong>clearly and confidently visible</strong> in the video. If a wall is blurry or partially shown, do not assume it is dirty. If lighting appears dim but video quality is poor, note "Not clearly visible due to poor video quality — no deduction applied." Multiple issues result in cumulative deductions. Minimum score = 0.
+        </div>
+
+        <div class="info-box info-orange">
+          🎥 <strong>Video Capture Note:</strong> Nurse must slowly pan all four walls, show the floor from at least 2 angles, and capture the entrance area clearly. Ceiling/upper walls should be briefly shown. Lighting must be captured without flash.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 2: BOARD & BANNER ══ -->
+    <div class="section-card" style="border-color:#bbdefb;">
+      <div class="section-header" style="background:#e3f2fd;" onclick="toggle('s2','c2')">
+        <div class="section-header-left">
+          <div class="section-icon" style="background:#e3f2fd;">🪧</div>
+          <div>
+            <div class="section-title">2. Board &amp; Banner (M-Swasth Only)</div>
+            <div class="section-sub">Outside board + inside banner — branding, tagline, condition &amp; placement</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="score-badge" style="background:#e3f2fd;color:#1565c0;">20 / 20</span>
+          <span class="chevron open" id="c2">▼</span>
+        </div>
+      </div>
+      <div class="section-body open" id="s2">
+
+        <div class="def-box">
+          <strong>Definition:</strong> This parameter evaluates whether the clinic has the correct and up-to-date M-Swasth branding — both outside (board) and inside (banner). Scoring covers presence, correctness of tagline, visual condition, proper placement, and completeness of required elements. Partner clinic branding (Namra, Muthoot, etc.) is ignored — only M-Swasth branding is scored.
+        </div>
+
+        <div class="info-box info-blue" style="margin-top:14px;">
+          🔍 <strong>Search Location Logic:</strong><br>
+          1. First check for M-Swasth board <strong>outside the clinic building.</strong><br>
+          2. If a partner board (e.g., Namra, Muthoot) is present outside → this is an <strong>in-house clinic</strong> → M-Swasth board/banner expected <strong>inside.</strong><br>
+          3. Check <strong>both locations</strong> before concluding board is missing.<br>
+          4. Ignore all partner boards for scoring — only evaluate M-Swasth branding.
+        </div>
+
+        <div class="inspect-label">🪧 Outside Board — Required Standards</div>
+        <table class="param-table">
+          <tr>
+            <th>Required Element</th>
+            <th>Standard / Expectation</th>
+          </tr>
+          <tr>
+            <td><strong>Branding</strong></td>
+            <td>Must display <strong>M-Swasth + e-clinic</strong> branding clearly</td>
+          </tr>
+          <tr>
+            <td><strong>New Tagline</strong></td>
+            <td>"Behtar swasth seva, ab aur bhi nazdik" (बेहतर स्वास्थ्य सेवा, अब और भी नज़दीक)</td>
+          </tr>
+          <tr>
+            <td><strong>Doctor Image</strong></td>
+            <td>Must feature a doctor image on the board</td>
+          </tr>
+          <tr>
+            <td><strong>Alignment</strong></td>
+            <td>Must be straight, undamaged, clean, and securely fixed</td>
+          </tr>
+          <tr>
+            <td><strong>Visibility</strong></td>
+            <td>Must be clearly visible from outside the clinic premises</td>
+          </tr>
+          <tr>
+            <td><strong>Old Tagline (Reject)</strong></td>
+            <td>"Accha Swasthya, M-Swasth ke Saath" — if this is clearly visible, deduct −5 pts</td>
+          </tr>
+        </table>
+
+        <div class="inspect-label">🖼️ Inside Banner — Required Standards</div>
+        <table class="param-table">
+          <tr>
+            <th>Required Element</th>
+            <th>Standard / Expectation</th>
+          </tr>
+          <tr>
+            <td><strong>Branding</strong></td>
+            <td>Must display <strong>M-Swasth + e-clinic</strong> branding prominently</td>
+          </tr>
+          <tr>
+            <td><strong>New Tagline</strong></td>
+            <td>"Behtar swasthya seva, ab aur bhi nazdik" (बेहतर स्वास्थ्य सेवा, अब और भी नज़दीक)</td>
+          </tr>
+          <tr>
+            <td><strong>Doctor Image</strong></td>
+            <td>Female doctor in white coat with stethoscope (as per reference image)</td>
+          </tr>
+          <tr>
+            <td><strong>Mobile/Tablet Screen</strong></td>
+            <td>Must show M-Swasth app interface on a phone or tablet screen</td>
+          </tr>
+          <tr>
+            <td><strong>Timing Slot</strong></td>
+            <td>Must show clinic timing (e.g., Subah 9 baje se Sham 5 baje tak)</td>
+          </tr>
+          <tr>
+            <td><strong>e-Clinic Number</strong></td>
+            <td>e-Clinic number field must be visible (filled in or blank field present)</td>
+          </tr>
+          <tr>
+            <td><strong>Placement</strong></td>
+            <td>Must be straight, clean, undamaged, and properly placed inside the clinic</td>
+          </tr>
+        </table>
+
+        <div class="ded-block">
+          <div class="ded-title">⚠️ Deduction Table — Board &amp; Banner</div>
+          <table class="ded-table">
+            <tr>
+              <th>Issue Found</th>
+              <th>Points Deducted</th>
+            </tr>
+            <tr>
+              <td>No M-Swasth outside board found (after checking both locations)</td>
+              <td><span class="pts">−10 pts</span></td>
+            </tr>
+            <tr>
+              <td>No M-Swasth inside banner found</td>
+              <td><span class="pts">−10 pts</span></td>
+            </tr>
+            <tr>
+              <td>Old tagline clearly visible on board — "Accha Swasthya, M-Swasth ke Saath"</td>
+              <td><span class="pts">−5 pts</span></td>
+            </tr>
+            <tr>
+              <td>Old tagline clearly visible on banner</td>
+              <td><span class="pts">−5 pts</span></td>
+            </tr>
+            <tr>
+              <td>Board or banner torn, faded, dirty, or visibly damaged</td>
+              <td><span class="pts">−5 pts</span></td>
+            </tr>
+            <tr>
+              <td>Poor placement — crooked, overlapping with other boards, or fixed with non-white tape</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+            <tr>
+              <td>Doctor image missing from banner</td>
+              <td><span class="pts">−2 pts</span></td>
+            </tr>
+            <tr>
+              <td>Mobile/tablet screen missing from inside banner</td>
+              <td><span class="pts">−2 pts</span></td>
+            </tr>
+            <tr>
+              <td>Outside board misaligned or not properly fixed to wall/structure</td>
+              <td><span class="pts">−2 pts</span></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="info-box info-orange">
+          ⚠️ <strong>Tagline Rule:</strong> If tagline is blurry or unreadable due to video quality, do NOT deduct for tagline. Only deduct when old tagline is <strong>clearly confirmed</strong> as visible in the video. Benefit of doubt applies only for blur — not for clear old taglines.
+        </div>
+
+        <div class="info-box info-blue">
+          🤖 <strong>AI Rule:</strong> Check both inside and outside before concluding board/banner is missing. Minimum score = 0. Deductions are cumulative.
+        </div>
+
+        <div class="info-box info-orange">
+          🎥 <strong>Video Capture Note:</strong> Outside board must be captured with a 3-second hold and slight zoom to make tagline readable. Inside banner must be shown fully (top to bottom) with zoom on tagline, doctor image, mobile screen, and timing field.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 3: POSTER & CERTIFICATE ══ -->
+    <div class="section-card" style="border-color:#e1bee7;">
+      <div class="section-header" style="background:#f3e5f5;" onclick="toggle('s3','c3')">
+        <div class="section-header-left">
+          <div class="section-icon" style="background:#f3e5f5;">📋</div>
+          <div>
+            <div class="section-title">3. Poster &amp; Certificate Placement</div>
+            <div class="section-sub">8 mandatory posters + 4 mandatory certificates — all must be properly visible in video</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="score-badge" style="background:#f3e5f5;color:#6a1b9a;">20 / 20</span>
+          <span class="chevron open" id="c3">▼</span>
+        </div>
+      </div>
+      <div class="section-body open" id="s3">
+
+        <div class="def-box">
+          <strong>Definition:</strong> All 8 mandatory health and compliance posters must be displayed on the clinic walls and clearly visible in the video. Additionally, 4 mandatory certificates (Doctor, Pharmacist, Nurse, M-Swasth) must be displayed and individually identifiable. Proper placement — straight, undamaged, fixed with white tape — is also evaluated.
+        </div>
+
+        <div class="inspect-label">📌 8 Mandatory Posters</div>
+        <div class="poster-grid">
+          <div class="poster-item"><span class="poster-num">P1</span><div><strong>Workplace Safety</strong><br><span style="font-size:0.76rem;color:#5c6bc0;">"हमारे कार्यस्थल सुरक्षित हैं"</span></div></div>
+          <div class="poster-item"><span class="poster-num">P2</span><div><strong>e-Clinic Rules</strong><br><span style="font-size:0.76rem;color:#5c6bc0;">"ई-क्लिनिक के नियम"</span></div></div>
+          <div class="poster-item"><span class="poster-num">P3</span><div><strong>Medicine Storage Rules</strong><br><span style="font-size:0.76rem;color:#5c6bc0;">"दवाई रखने और वितरण के नियम"</span></div></div>
+          <div class="poster-item"><span class="poster-num">P4</span><div><strong>Pregnancy Diet</strong><br><span style="font-size:0.76rem;color:#5c6bc0;">"गर्भावस्था में आहार"</span></div></div>
+          <div class="poster-item"><span class="poster-num">P5</span><div><strong>Patient Rights &amp; Responsibilities</strong><br><span style="font-size:0.76rem;color:#5c6bc0;">"मरीजों के अधिकार और जिम्मेदारियाँ"</span></div></div>
+          <div class="poster-item"><span class="poster-num">P6</span><div><strong>Important Tests</strong><br><span style="font-size:0.76rem;color:#5c6bc0;">"गंभीर परीक्षण"</span></div></div>
+          <div class="poster-item"><span class="poster-num">P7</span><div><strong>Why Telemedicine</strong><br><span style="font-size:0.76rem;color:#5c6bc0;">"टेलीमेडिसिन क्यों चुनें?"</span></div></div>
+          <div class="poster-item"><span class="poster-num">P8</span><div><strong>Menstrual Hygiene</strong><br><span style="font-size:0.76rem;color:#5c6bc0;">"मासिक धर्म के दौरान क्या करें"</span></div></div>
+        </div>
+
+        <div class="info-box info-green" style="margin-top:14px;">
+          🌐 <strong>Language Rule:</strong> Poster language may vary by state (Hindi, regional language, English). Accept any language if the <strong>topic is clearly identifiable</strong>. Do NOT deduct for language differences alone.
+        </div>
+
+        <div class="inspect-label" style="margin-top:16px;">🏅 4 Mandatory Certificates</div>
+        <div class="cert-grid">
+          <div class="cert-item">👨‍⚕️ Doctor Certificate — <strong>−3 pts if missing</strong></div>
+          <div class="cert-item">💊 Pharmacist Certificate — <strong>−3 pts if missing</strong></div>
+          <div class="cert-item">👩‍⚕️ Nurse Certificate — <strong>−3 pts if missing</strong></div>
+          <div class="cert-item">🏥 M-Swasth Certificate — <strong>−3 pts if missing</strong></div>
+        </div>
+
+        <div class="inspect-label" style="margin-top:16px;">📐 Sub-Parameters &amp; What to Check</div>
+        <table class="param-table">
+          <tr>
+            <th>Sub-Parameter</th>
+            <th>What Must Be Observed</th>
+          </tr>
+          <tr>
+            <td><strong>Poster Presence</strong></td>
+            <td>All 8 posters must be physically on the wall and captured individually in the video. Each poster must be held clearly in frame for at least 3 seconds.</td>
+          </tr>
+          <tr>
+            <td><strong>Poster Identifiability</strong></td>
+            <td>Each poster's topic must be identifiable — either by title, image, or key content. Regional language posters are accepted if the topic is clear.</td>
+          </tr>
+          <tr>
+            <td><strong>Poster Condition</strong></td>
+            <td>Posters must not be torn, faded, stained, or damaged. Old/outdated posters must be replaced with current versions.</td>
+          </tr>
+          <tr>
+            <td><strong>Poster Placement</strong></td>
+            <td>Posters must be straight, not overlapping each other, and fixed with white tape only. No non-white tape, pins that damage posters, or crooked hanging.</td>
+          </tr>
+          <tr>
+            <td><strong>Certificate Presence</strong></td>
+            <td>All 4 certificates must be displayed on the wall and individually identifiable in the video. AI must be able to read the type of certificate from the video.</td>
+          </tr>
+          <tr>
+            <td><strong>Certificate Display</strong></td>
+            <td>Certificates must be framed or displayed properly — not folded, crumpled, or hidden behind other items. Must be clearly visible to patients and auditors.</td>
+          </tr>
+        </table>
+
+        <div class="ded-block">
+          <div class="ded-title">⚠️ Deduction Table — Posters &amp; Certificates</div>
+          <table class="ded-table">
+            <tr>
+              <th>Issue Found</th>
+              <th>Points Deducted</th>
+            </tr>
+            <tr>
+              <td>Each missing mandatory poster — clearly absent or not captured at all (max −8)</td>
+              <td><span class="pts">−1 pt each</span></td>
+            </tr>
+            <tr>
+              <td>Doctor Certificate missing</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+            <tr>
+              <td>Pharmacist Certificate missing</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+            <tr>
+              <td>Nurse Certificate missing</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+            <tr>
+              <td>M-Swasth Certificate missing</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+            <tr>
+              <td>Posters/certificates crooked, overlapping, torn, or fixed with non-white tape (single deduction)</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="info-box info-purple">
+          🤖 <strong>AI Rule:</strong> If a poster is present but blurry/partially out of frame due to poor video quality → note it but do NOT deduct. If a poster is clearly not shown anywhere in the video → deduct. Every deduction must name the specific poster or certificate. If not visible in video → clearly state: <em>"Not captured in video"</em> or <em>"Not clearly visible due to poor video quality — no deduction applied."</em>
+        </div>
+
+        <div class="info-box info-orange">
+          🎥 <strong>Video Capture Note:</strong> Nurse must capture each of the 8 posters individually with a 3-second hold. Each certificate must also be shown separately. Do not group multiple posters or certificates in one frame — they must be identifiable individually.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 4: FURNITURE ══ -->
+    <div class="section-card" style="border-color:#ffccbc;">
+      <div class="section-header" style="background:#fbe9e7;" onclick="toggle('s4','c4')">
+        <div class="section-header-left">
+          <div class="section-icon" style="background:#fbe9e7;">🪑</div>
+          <div>
+            <div class="section-title">4. Furniture &amp; Table Setup</div>
+            <div class="section-sub">Minimum furniture · green cloth coverage · table condition</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="score-badge" style="background:#fbe9e7;color:#bf360c;">20 / 20</span>
+          <span class="chevron open" id="c4">▼</span>
+        </div>
+      </div>
+      <div class="section-body open" id="s4">
+
+        <div class="def-box">
+          <strong>Definition:</strong> This parameter verifies that the clinic has the minimum required furniture (1 table + 2 chairs/stools) and that the main clinic table is properly covered with a green cloth. The green cloth must be clean, smooth, and fully covering the table surface. Any shade of green is acceptable.
+        </div>
+
+        <div class="inspect-label">📐 Sub-Parameters &amp; What to Check</div>
+        <table class="param-table">
+          <tr>
+            <th>Sub-Parameter</th>
+            <th>What Must Be Observed</th>
+            <th>Impact if Failed</th>
+          </tr>
+          <tr>
+            <td><strong>Table Presence</strong></td>
+            <td>At least 1 table must be present in the clinic consultation area. It must be a proper table — not a makeshift surface.</td>
+            <td>Score = 0 if absent</td>
+          </tr>
+          <tr>
+            <td><strong>Chairs / Stools</strong></td>
+            <td>Minimum 2 chairs or stools must be present — one for the nurse/operator and one for the patient. Both must be clearly visible in the video.</td>
+            <td>Score = 0 if fewer than 2</td>
+          </tr>
+          <tr>
+            <td><strong>Green Cloth — Presence</strong></td>
+            <td>The main clinic table must have a green cloth covering. Any shade of green is acceptable (dark green, light green, olive, etc.).</td>
+            <td>−10 pts if absent</td>
+          </tr>
+          <tr>
+            <td><strong>Green Cloth — Coverage</strong></td>
+            <td>The cloth must fully cover the table surface — edges and all corners. Partial coverage (table legs or sides visible) is not acceptable.</td>
+            <td>−5 pts if partial</td>
+          </tr>
+          <tr>
+            <td><strong>Green Cloth — Condition</strong></td>
+            <td>Cloth must be clean — no visible stains, heavy dirt marks. Must be spread smoothly — not heavily wrinkled or bunched up.</td>
+            <td>−5 pts if dirty/wrinkled</td>
+          </tr>
+          <tr>
+            <td><strong>Overall Table Setup</strong></td>
+            <td>Table should look organized and well-maintained — not cluttered with non-clinic items or in a state of disarray.</td>
+            <td>−3 pts if poorly maintained</td>
+          </tr>
+        </table>
+
+        <div class="ded-block">
+          <div class="ded-title">⚠️ Deduction Table — Furniture &amp; Table Setup</div>
+          <table class="ded-table">
+            <tr>
+              <th>Issue Found</th>
+              <th>Points Deducted</th>
+            </tr>
+            <tr>
+              <td>No table found in clinic</td>
+              <td><span class="pts">Score = 0</span></td>
+            </tr>
+            <tr>
+              <td>Fewer than 2 chairs or stools present</td>
+              <td><span class="pts">Score = 0</span></td>
+            </tr>
+            <tr>
+              <td>No green cloth on the table</td>
+              <td><span class="pts">−10 pts</span></td>
+            </tr>
+            <tr>
+              <td>Green cloth present but clearly dirty, heavily stained, or visibly very wrinkled</td>
+              <td><span class="pts">−5 pts</span></td>
+            </tr>
+            <tr>
+              <td>Green cloth does not fully cover table — table surface partially exposed</td>
+              <td><span class="pts">−5 pts</span></td>
+            </tr>
+            <tr>
+              <td>Table setup present but poorly maintained or disorganized</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="info-box info-blue">
+          🤖 <strong>AI Rule:</strong> Score = 0 is applied only when table or chairs are completely absent. For green cloth issues, only deduct when clearly and confidently visible in the video. If cloth is partially out of frame, do not assume it doesn't cover the table.
+        </div>
+
+        <div class="info-box info-orange">
+          🎥 <strong>Video Capture Note:</strong> Nurse must show the full table from the front — then zoom in on the green cloth to show it fully covers all edges. Chairs must both be visible in the frame. Hold each item for 3–4 seconds. Zoom in on cloth condition to allow AI to assess cleanliness.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 5: MEDICINE & EQUIPMENT ══ -->
+    <div class="section-card" style="border-color:#b2dfdb;">
+      <div class="section-header" style="background:#e0f2f1;" onclick="toggle('s5','c5')">
+        <div class="section-header-left">
+          <div class="section-icon" style="background:#e0f2f1;">💊</div>
+          <div>
+            <div class="section-title">5. Placement of Medicine &amp; Equipment</div>
+            <div class="section-sub">OTC medicine storage · trunk/rack organization · equipment condition</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="score-badge" style="background:#e0f2f1;color:#00695c;">20 / 20</span>
+          <span class="chevron open" id="c5">▼</span>
+        </div>
+      </div>
+      <div class="section-body open" id="s5">
+
+        <div class="def-box">
+          <strong>Definition:</strong> This parameter evaluates how medicines and medical equipment are stored and organized. Only essential OTC medicines should be visible on the table; all stock must be properly stored in a trunk or medicine rack — not in cardboard boxes. Equipment must be clean, functional-looking, and neatly placed.
+        </div>
+
+        <div class="inspect-label">📐 Sub-Parameters &amp; What to Check</div>
+        <table class="param-table">
+          <tr>
+            <th>Sub-Parameter</th>
+            <th>What Must Be Observed</th>
+            <th>Impact if Failed</th>
+          </tr>
+          <tr>
+            <td><strong>Medicine on Table</strong></td>
+            <td>Only essential OTC medicines should be visible on the consultation table. A small, neat quantity is acceptable. Cluttered or excessive stock on table is not allowed.</td>
+            <td>−5 pts if cluttered</td>
+          </tr>
+          <tr>
+            <td><strong>Medicine Storage Type</strong></td>
+            <td>All bulk medicine stock must be stored inside a proper <strong>trunk or medicine rack</strong>. Cardboard boxes or cartons are strictly not allowed as medicine storage.</td>
+            <td>−5 pts for carton/cardboard</td>
+          </tr>
+          <tr>
+            <td><strong>Medicine Organization</strong></td>
+            <td>Medicines inside trunk/rack must be neatly arranged — not thrown loosely or piled randomly. Labels should be facing outward where possible.</td>
+            <td>−3 pts if untidy</td>
+          </tr>
+          <tr>
+            <td><strong>Expired Medicines</strong></td>
+            <td>No medicines with expired dates should be visible. If any medicine with a visibly expired date is found during video, it must be flagged.</td>
+            <td>−6 pts if found</td>
+          </tr>
+          <tr>
+            <td><strong>Equipment — BP Machine</strong></td>
+            <td>BP machine must be present, visibly clean, and properly placed — not thrown loosely or buried under items.</td>
+            <td>−4 pts if dirty/misplaced</td>
+          </tr>
+          <tr>
+            <td><strong>Equipment — Weighing Machine &amp; Others</strong></td>
+            <td>Weighing machine and any other equipment must be visible, clean, and neatly arranged. Equipment must not look dusty, broken, or mishandled.</td>
+            <td>−4 pts if dirty/misplaced</td>
+          </tr>
+        </table>
+
+        <div class="info-box info-green" style="margin-top:14px;">
+          🏥 <strong>In-House Clinic Exception:</strong> In-house clinics (partner-run) may keep a small quantity of medicines on or near the table for distribution purposes. Do <strong>NOT</strong> deduct for this <em>only if</em> the quantity is small and arrangement looks neat and organized. Deduct only if it appears messy, cluttered, or poorly organized.
+        </div>
+
+        <div class="ded-block">
+          <div class="ded-title">⚠️ Deduction Table — Medicine &amp; Equipment</div>
+          <table class="ded-table">
+            <tr>
+              <th>Issue Found</th>
+              <th>Points Deducted</th>
+            </tr>
+            <tr>
+              <td>Medicine stock kept in cardboard/carton box (not a trunk or rack)</td>
+              <td><span class="pts">−5 pts</span></td>
+            </tr>
+            <tr>
+              <td>Cluttered or disorganized medicines visible on table</td>
+              <td><span class="pts">−5 pts</span></td>
+            </tr>
+            <tr>
+              <td>Equipment dirty, dusty, or poorly placed</td>
+              <td><span class="pts">−4 pts</span></td>
+            </tr>
+            <tr>
+              <td>Medicines clearly expired or improperly stored (visible expiry)</td>
+              <td><span class="pts">−6 pts</span></td>
+            </tr>
+            <tr>
+              <td>General untidy or disorganized arrangement clearly visible</td>
+              <td><span class="pts">−3 pts</span></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="info-box info-blue">
+          🤖 <strong>AI Rule:</strong> For in-house clinics, apply exception only if arrangement looks neat. For expired medicines, only flag if an expiry date is clearly visible and readable in the video. Do not assume medicines are expired without clearly seeing a date. Deductions are cumulative.
+        </div>
+
+        <div class="info-box info-orange">
+          🎥 <strong>Video Capture Note:</strong> Nurse must open the trunk or show the medicine rack clearly. Zoom in on medicine arrangement. Show the BP machine and weighing machine individually with a 3-second hold each. If medicines are on the table, zoom in on the arrangement so AI can assess tidiness.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ GENERAL RULES SECTION ══ -->
+    <div class="section-divider">📜 General Evaluation Rules</div>
+
+    <div class="section-card" style="border-color:#cfd8dc;">
+      <div class="section-header" style="background:#eceff1;" onclick="toggle('sg','cg')">
+        <div class="section-header-left">
+          <div class="section-icon" style="background:#eceff1;">📜</div>
+          <div>
+            <div class="section-title">General Rules for AI Agents &amp; Re-Audit Staff</div>
+            <div class="section-sub">Core evaluation principles — must be followed strictly for all audits</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="score-badge" style="background:#eceff1;color:#37474f;">RULES</span>
+          <span class="chevron open" id="cg">▼</span>
+        </div>
+      </div>
+      <div class="section-body open" id="sg">
+
+        <div class="inspect-label">🔒 Core Rules</div>
+        <ul class="gen-rule-list">
+          <li><span class="gr-num">1</span><div><strong>No assumptions allowed:</strong> If the video is blurry, angle is poor, or something is not clearly visible, do NOT assume it is missing or incorrect. Only deduct points when you are sure based on what is clearly visible.</div></li>
+          <li><span class="gr-num">2</span><div><strong>Be strict on all parameters:</strong> Do not give benefit of doubt unless video quality is genuinely the limiting factor. If something is clearly visible and clearly wrong, apply the deduction.</div></li>
+          <li><span class="gr-num">3</span><div><strong>Every deduction needs a reason:</strong> Every deduction must be accompanied by a specific comment explaining exactly what was wrong AND whether it was not captured, not visible due to video quality, or missing entirely.</div></li>
+          <li><span class="gr-num">4</span><div><strong>Name specific items in deductions:</strong> For posters and certificates, always name the specific item (e.g., "P3 — Medicine Storage Rules poster not visible in video"). Generic remarks like "posters missing" are not acceptable.</div></li>
+          <li><span class="gr-num">5</span><div><strong>Minimum score is 0:</strong> No individual category score can go below 0, even with cumulative deductions exceeding 20 points.</div></li>
+          <li><span class="gr-num">6</span><div><strong>Cumulative deductions:</strong> Multiple issues within the same category result in cumulative deductions (added together). Do not cap at one deduction per category.</div></li>
+          <li><span class="gr-num">7</span><div><strong>Partner branding is ignored:</strong> Only M-Swasth branding is scored in Section 2. Namra, Muthoot, or any other partner board/banner is not evaluated for scoring purposes.</div></li>
+          <li><span class="gr-num">8</span><div><strong>Regional language posters accepted:</strong> Posters in Hindi, regional languages, or English are all acceptable if the topic is identifiable. Do not deduct for language differences alone.</div></li>
+          <li><span class="gr-num">9</span><div><strong>In-house clinic exception applies:</strong> Apply the in-house medicine exception only if arrangement is neat. Sloppy or cluttered in-house medicine arrangements still attract deductions.</div></li>
+          <li><span class="gr-num">10</span><div><strong>Final score is out of 100:</strong> All 5 category scores (each out of 20) are added to give the final score. Report as XX/100 with star rating.</div></li>
+        </ul>
+
+        <div class="inspect-label" style="margin-top:18px;">📝 Standard Remark Templates</div>
+        <div style="margin-bottom:8px;font-size:0.84rem;color:#37474f;">Use these exact phrasings in audit comments when applicable:</div>
+
+        <div class="remark-box">
+          ✏️ <strong>If item not captured in video:</strong><br>
+          "Not captured in video — cannot confirm presence or absence. Deduction applied."
+        </div>
+        <div class="remark-box" style="margin-top:8px;">
+          ✏️ <strong>If item not visible due to poor video quality:</strong><br>
+          "Not clearly visible due to poor video quality/angle — no deduction applied."
+        </div>
+        <div class="remark-box" style="margin-top:8px;">
+          ✏️ <strong>If item is confirmed missing:</strong><br>
+          "Clearly not present in video — [item name] missing. Deduction of [X] points applied."
+        </div>
+        <div class="remark-box" style="margin-top:8px;">
+          ✏️ <strong>If old tagline is confirmed visible:</strong><br>
+          "Old tagline 'Accha Swasthya, M-Swasth ke Saath' clearly visible on [board/banner]. Deduction of −5 points applied."
+        </div>
+        <div class="remark-box" style="margin-top:8px;">
+          ✏️ <strong>If poster is blurry but appears present:</strong><br>
+          "[Poster name] appears present on wall but is partially blurry/out of frame — topic could not be fully confirmed. No deduction applied due to video quality."
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ FINAL CARD ══ -->
+    <div class="final-card">
+      <div class="final-title">📝 Final Notes &amp; Evaluator Reminders</div>
+      <ul class="final-list">
+        <li><span class="fi">🔍</span>Use only <strong>factual deductions</strong> — do not speculate or make assumptions based on poor video quality</li>
+        <li><span class="fi">✍️</span>Key Observations must include only what was actually seen — both <strong>Good Practices</strong> and <strong>Issues to Improve</strong></li>
+        <li><span class="fi">📋</span>Every comment/remark must clearly mention: reason for deduction AND whether item was not captured, not visible, or clearly missing</li>
+        <li><span class="fi">🏷️</span>Always name specific posters and certificates when applying deductions — generic remarks are not acceptable</li>
+        <li><span class="fi">💯</span>Final score must be reported <strong>out of 100</strong> with star rating from ★☆☆☆☆ to ★★★★★</li>
+        <li><span class="fi">📹</span>If video quality is consistently poor throughout, flag this clearly in the summary for re-capture request</li>
+        <li><span class="fi">📩</span>All evaluations must be strictly based on the above parameters — deductions applied only per clearly visible conditions</li>
+      </ul>
+    </div>
+
+  </div><!-- end body-content -->
+
+  <!-- ══════════════════ FOOTER ══════════════════ -->
+  <div class="footer">
+    <strong>M-Swasth Audit Framework</strong> &nbsp;|&nbsp; For AI Agent &amp; Re-Audit Evaluator Use Only &nbsp;|&nbsp; All scores based on visible, factual observations &nbsp;|&nbsp; Total: 100 Points
+  </div>
+
+</div><!-- end container -->
+
+<script>
+  function toggle(bodyId, chevronId) {
+    var body = document.getElementById(bodyId);
+    var chevron = document.getElementById(chevronId);
+    if (body.classList.contains('open')) {
+      body.classList.remove('open');
+      chevron.classList.remove('open');
+    } else {
+      body.classList.add('open');
+      chevron.classList.add('open');
+    }
+  }
+</script>
+
+</body>
+</html>
