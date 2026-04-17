@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 import os
 from datetime import datetime
 import hashlib
+import json
+
 
 # Google Libraries
 import gspread
@@ -18,7 +20,8 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
     "https://www.googleapis.com/auth/spreadsheets"
 ]
-creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+creds_dict = json.loads(os.environ.get("GOOGLE_CREDENTIALS"))
+creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
 client = gspread.authorize(creds)
 
 # ✅ SETTINGS (From Old Code)
