@@ -12,6 +12,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -54,7 +55,7 @@ def create_folder(name, parent_id):
 
 def upload_file(file_path, file_name, mime_type, parent_id):
     file_metadata = {"name": file_name, "parents": [parent_id]}
-    media = MediaFileUpload(file_path, mimetype=mime_type)
+    media = MediaFileUpload(file_path, mimetype=mime_type, resumable=True, chunksize=1024*1024)
     file = drive_service.files().create(
         body=file_metadata, media_body=media, fields="id", supportsAllDrives=True
     ).execute()
@@ -110,6 +111,7 @@ def upload():
         v_path = os.path.join(UPLOAD_FOLDER, v_name)
         video.save(v_path)
         video_link = upload_file(v_path, v_name, "video/mp4", v_fold)
+        os.remove(v_path)   # Cleanup Video
 
         # 4. Handle Photos
         for i in range(1, 5):
@@ -125,7 +127,7 @@ def upload():
         row = [agent_msid, eclinic, state, today_str, timestamp_str] + scores + [final_score, issues, ai_output, video_link]
         sheet.append_row(row, value_input_option="RAW")
         
-        os.remove(v_path) # Cleanup Video
+       
         return "✅ Audit Uploaded Successfully!"
     except Exception as e:
         return f"❌ System Error: {str(e)}"
