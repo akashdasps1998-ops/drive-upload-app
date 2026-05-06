@@ -35,7 +35,9 @@ client = gspread.authorize(creds)
 # ================= SETTINGS =================
 sheet = client.open_by_key("1wyxj7NDoPgbHtiXTYwvmflXS1tgn49e5uivtd_4Y8A4").sheet1
 drive_service = build("drive", "v3", credentials=creds)
+
 ROOT_FOLDER_ID = "1uGfbVLbokVyUxHH5W66ULb1BvzOjzzKH"
+BACKUP_FOLDER_ID = "0AM63WZlfiwbsUk9PVA"  # backup drive folder
 
 # ================= UTILS =================
 def get_file_hash(file):
@@ -60,14 +62,12 @@ def create_folder(name, parent_id):
     if files:
         return files[0]["id"]
 
-    folder_metadata = {
-        "name": name,
-        "mimeType": "application/vnd.google-apps.folder",
-        "parents": [parent_id]
-    }
-
     folder = drive_service.files().create(
-        body=folder_metadata,
+        body={
+            "name": name,
+            "mimeType": "application/vnd.google-apps.folder",
+            "parents": [parent_id]
+        },
         fields="id",
         supportsAllDrives=True
     ).execute()
@@ -75,11 +75,6 @@ def create_folder(name, parent_id):
     return folder.get("id")
 
 def upload_file(file_path, file_name, mime_type, parent_id):
-    file_metadata = {
-        "name": file_name,
-        "parents": [parent_id]
-    }
-
     media = MediaFileUpload(
         file_path,
         mimetype=mime_type,
@@ -88,13 +83,38 @@ def upload_file(file_path, file_name, mime_type, parent_id):
     )
 
     file = drive_service.files().create(
-        body=file_metadata,
+        body={"name": file_name, "parents": [parent_id]},
         media_body=media,
         fields="id",
         supportsAllDrives=True
     ).execute()
 
     return f"https://drive.google.com/file/d/{file.get('id')}/view"
+
+# ================= BACKUP SYSTEM =================
+def create_backup(data):
+    file_name = f"backup_{int(time.time())}.json"
+    temp_path = os.path.join(UPLOAD_FOLDER, file_name)
+
+    with open(temp_path, "w") as f:
+        json.dump(data, f)
+
+    file = drive_service.files().create(
+        body={"name": file_name, "parents": [BACKUP_FOLDER_ID]},
+        media_body=MediaFileUpload(temp_path, mimetype="application/json"),
+        fields="id",
+        supportsAllDrives=True
+    ).execute()
+
+    os.remove(temp_path)
+    return file.get("id")
+
+def update_backup_status(file_id, status):
+    drive_service.files().update(
+        fileId=file_id,
+        body={"description": f"STATUS: {status}"},
+        supportsAllDrives=True
+    ).execute()
 
 # ================= ROUTES =================
 @app.route('/')
@@ -132,15 +152,56 @@ def upload():
         today_str = datetime.now().strftime("%d-%m-%Y")
         timestamp_str = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-        # ===== 2. Create Folders =====
+        # ===== BACKUP FIRST =====
+        backup_data = {
+            "agent": agent_msid,
+            "clinic": eclinic,
+            "state": state,
+            "timestamp": timestamp_str,
+            "scores": scores,
+            "final_score": final_score,
+            "issues": issues,
+            "ai_output": ai_output
+        }
+
+        backup_id = create_backup(backup_data)
+        print("📁 Backup created:", backup_id)
+
+        # ===== SHEET CHECK FIRST (NEW LOGIC) =====
+        test_row = [
+            agent_msid, eclinic, state,
+            today_str, timestamp_str
+        ] + scores + [
+            final_score, issues, ai_output, "PENDING"
+        ]
+
+        sheet_success = False
+        for attempt in range(3):
+            try:
+                sheet.append_row(test_row, value_input_option="RAW")
+                sheet_success = True
+                print("✅ Sheet entry success (pre-check)")
+                break
+            except Exception as e:
+                print(f"❌ Sheet retry {attempt+1}:", str(e))
+                time.sleep(2)
+
+        if not sheet_success:
+            update_backup_status(backup_id, "FAILED_SHEET")
+            return "❌ Upload blocked: Google Sheet failed"
+
+        # ===== ORIGINAL LOGIC CONTINUES (UNCHANGED) =====
+
+        # ===== Create Folders =====
         e_fold = create_folder(eclinic, ROOT_FOLDER_ID)
         d_fold = create_folder(today_str, e_fold)
         p_fold = create_folder("Photos", d_fold)
         v_fold = create_folder("Videos", d_fold)
 
-        # ===== 3. Handle Video =====
+        # ===== Handle Video =====
         video = request.files.get('video')
         if not video:
+            update_backup_status(backup_id, "FAILED_VIDEO")
             return "❌ Video File Missing"
 
         v_hash = get_file_hash(video)
@@ -151,10 +212,11 @@ def upload():
         video_link = upload_file(v_path, v_name, "video/mp4", v_fold)
         os.remove(v_path)
 
-        # ===== 4. Handle Photos =====
+        # ===== Handle Photos =====
         for i in range(1, 5):
             photo = request.files.get(f'photo{i}')
             if not photo:
+                update_backup_status(backup_id, f"FAILED_PHOTO_{i}")
                 return f"❌ Photo {i} Missing"
 
             safe_name = photo.filename.replace(" ", "_")
@@ -166,26 +228,8 @@ def upload():
             upload_file(p_path, p_name, "image/jpeg", p_fold)
             os.remove(p_path)
 
-        # ===== 5. Save to Sheet =====
-        row = [
-            agent_msid, eclinic, state,
-            today_str, timestamp_str
-        ] + scores + [
-            final_score, issues, ai_output, video_link
-        ]
-
-        print("📤 Sending row to Google Sheets...")
-
-        for attempt in range(3):
-            try:
-                sheet.append_row(row, value_input_option="RAW")
-                print("✅ Sheet updated successfully!")
-                break
-            except Exception as e:
-                print(f"❌ Retry {attempt+1} failed:", str(e))
-                time.sleep(2)
-        else:
-            print("❌ All retries failed.")
+        # ===== FINAL SUCCESS =====
+        update_backup_status(backup_id, "SUCCESS")
 
         return "✅ Audit Uploaded Successfully!"
 
