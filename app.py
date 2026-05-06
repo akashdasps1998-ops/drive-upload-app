@@ -37,7 +37,7 @@ sheet = client.open_by_key("1wyxj7NDoPgbHtiXTYwvmflXS1tgn49e5uivtd_4Y8A4").sheet
 drive_service = build("drive", "v3", credentials=creds)
 
 ROOT_FOLDER_ID = "1uGfbVLbokVyUxHH5W66ULb1BvzOjzzKH"
-BACKUP_FOLDER_ID = "0AM63WZlfiwbsUk9PVA"  # backup drive folder
+BACKUP_FOLDER_ID = "0AM63WZlfiwbsUk9PVA"
 
 # ================= UTILS =================
 def get_file_hash(file):
@@ -132,7 +132,7 @@ def upload():
             val = request.form.get(key, "").strip()
             return val if val else "-"
 
-        # ===== 1. Capture Data =====
+        # ===== Capture Data =====
         agent_msid = get_v("agentMsid")
         eclinic = get_v("eclinicCode").upper()
         state = get_v("state")
@@ -152,7 +152,7 @@ def upload():
         today_str = datetime.now().strftime("%d-%m-%Y")
         timestamp_str = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-        # ===== BACKUP FIRST =====
+        # ===== BACKUP =====
         backup_data = {
             "agent": agent_msid,
             "clinic": eclinic,
@@ -167,42 +167,33 @@ def upload():
         backup_id = create_backup(backup_data)
         print("📁 Backup created:", backup_id)
 
-        # ===== SHEET CHECK FIRST (NEW LOGIC) =====
-        test_row = [
+        # ===== SHEET FIRST =====
+        row = [
             agent_msid, eclinic, state,
             today_str, timestamp_str
         ] + scores + [
             final_score, issues, ai_output, "PENDING"
         ]
 
-        sheet_success = False
-        for attempt in range(3):
-            try:
-                sheet.append_row(test_row, value_input_option="RAW")
-                sheet_success = True
-                print("✅ Sheet entry success (pre-check)")
-                break
-            except Exception as e:
-                print(f"❌ Sheet retry {attempt+1}:", str(e))
-                time.sleep(2)
+        sheet.append_row(row, value_input_option="RAW")
+        print("✅ Sheet entry success")
 
-        if not sheet_success:
-            update_backup_status(backup_id, "FAILED_SHEET")
-            return "❌ Upload blocked: Google Sheet failed"
+        # 👉 get last row
+        row_number = len(sheet.get_all_values())
+        print("📍 Row:", row_number)
 
-        # ===== ORIGINAL LOGIC CONTINUES (UNCHANGED) =====
+        # ===== DRIVE =====
+        print("🎥 Uploading video...")
 
-        # ===== Create Folders =====
         e_fold = create_folder(eclinic, ROOT_FOLDER_ID)
         d_fold = create_folder(today_str, e_fold)
         p_fold = create_folder("Photos", d_fold)
         v_fold = create_folder("Videos", d_fold)
 
-        # ===== Handle Video =====
         video = request.files.get('video')
         if not video:
             update_backup_status(backup_id, "FAILED_VIDEO")
-            return "❌ Video File Missing"
+            return "❌ Video Missing"
 
         v_hash = get_file_hash(video)
         v_name = f"{eclinic}_{today_str}_{v_hash}.mp4"
@@ -212,24 +203,32 @@ def upload():
         video_link = upload_file(v_path, v_name, "video/mp4", v_fold)
         os.remove(v_path)
 
-        # ===== Handle Photos =====
+        print("✅ Video uploaded")
+
+        print("🖼️ Uploading photos...")
+
         for i in range(1, 5):
             photo = request.files.get(f'photo{i}')
             if not photo:
                 update_backup_status(backup_id, f"FAILED_PHOTO_{i}")
                 return f"❌ Photo {i} Missing"
 
-            safe_name = photo.filename.replace(" ", "_")
-
-            p_name = f"{eclinic}_{state}_P{i}_{safe_name}"
+            p_name = f"{eclinic}_{state}_P{i}_{photo.filename}"
             p_path = os.path.join(UPLOAD_FOLDER, p_name)
 
             photo.save(p_path)
             upload_file(p_path, p_name, "image/jpeg", p_fold)
             os.remove(p_path)
 
-        # ===== FINAL SUCCESS =====
+        print("✅ Photos uploaded")
+
+        # ===== UPDATE SHEET =====
+        sheet.update_cell(row_number, len(row), video_link)
+        print("🔄 Sheet updated with Drive link")
+
+        # ===== FINAL =====
         update_backup_status(backup_id, "SUCCESS")
+        print("🎉 SUCCESS")
 
         return "✅ Audit Uploaded Successfully!"
 
