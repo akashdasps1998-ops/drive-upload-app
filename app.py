@@ -4,6 +4,7 @@ from datetime import datetime
 import hashlib
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 # Google Libraries
 import gspread
@@ -79,7 +80,7 @@ def upload_file(file_path, file_name, mime_type, parent_id):
         file_path,
         mimetype=mime_type,
         resumable=True,
-        chunksize=1024 * 1024
+        chunksize=5 * 1024 * 1024  # 🚀 increased chunk size (faster)
     )
 
     file = drive_service.files().create(
@@ -178,19 +179,20 @@ def upload():
         sheet.append_row(row, value_input_option="RAW")
         print("✅ Sheet entry success")
 
-        # 👉 get last row
-        row_number = len(sheet.get_all_values())
+        # 🚀 FAST row detection
+        row_number = len(sheet.col_values(1))
         print("📍 Row:", row_number)
 
         # ===== DRIVE =====
-        print("🎥 Uploading video...")
-
         e_fold = create_folder(eclinic, ROOT_FOLDER_ID)
         d_fold = create_folder(today_str, e_fold)
         p_fold = create_folder("Photos", d_fold)
         v_fold = create_folder("Videos", d_fold)
 
+        # ===== VIDEO =====
+        print("🎥 Uploading video...")
         video = request.files.get('video')
+
         if not video:
             update_backup_status(backup_id, "FAILED_VIDEO")
             return "❌ Video Missing"
@@ -205,13 +207,13 @@ def upload():
 
         print("✅ Video uploaded")
 
+        # ===== PHOTOS (PARALLEL 🚀) =====
         print("🖼️ Uploading photos...")
 
-        for i in range(1, 5):
+        def process_photo(i):
             photo = request.files.get(f'photo{i}')
             if not photo:
-                update_backup_status(backup_id, f"FAILED_PHOTO_{i}")
-                return f"❌ Photo {i} Missing"
+                raise Exception(f"Photo {i} missing")
 
             p_name = f"{eclinic}_{state}_P{i}_{photo.filename}"
             p_path = os.path.join(UPLOAD_FOLDER, p_name)
@@ -219,6 +221,9 @@ def upload():
             photo.save(p_path)
             upload_file(p_path, p_name, "image/jpeg", p_fold)
             os.remove(p_path)
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            executor.map(process_photo, range(1, 5))
 
         print("✅ Photos uploaded")
 
