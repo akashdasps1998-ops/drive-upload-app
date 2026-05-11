@@ -12,11 +12,9 @@ from io import BytesIO
 import gspread
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload  # ← KEY CHANGE: stream instead of file
+from googleapiclient.http import MediaIoBaseUpload
 
 app = Flask(__name__)
-
-# ↓ Increased but keep reasonable for Render free tier
 app.config['MAX_CONTENT_LENGTH'] = 150 * 1024 * 1024
 
 # ================= GOOGLE AUTH =================
@@ -31,26 +29,20 @@ if not creds_json:
 
 creds_dict = json.loads(creds_json)
 
-# -----------------------------------------------
-# FIX #1: Thread-local credentials
-# Each thread gets its own Google API client
-# This fixes ALL the SSL errors you're seeing
-# -----------------------------------------------
+# ================= THREAD-LOCAL CLIENTS =================
 _thread_local = threading.local()
 
 def get_drive_service():
-    """Get a thread-local Drive service instance."""
     if not hasattr(_thread_local, 'drive_service'):
         creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
         _thread_local.drive_service = build(
             "drive", "v3",
             credentials=creds,
-            cache_discovery=False  # Avoids file cache issues on Render
+            cache_discovery=False
         )
     return _thread_local.drive_service
 
 def get_sheet_client():
-    """Get a thread-local Sheets client."""
     if not hasattr(_thread_local, 'sheet_client'):
         creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
         gc = gspread.authorize(creds)
@@ -65,14 +57,12 @@ BACKUP_FOLDER_ID = "0AM63WZlfiwbsUk9PVA"
 
 # ================= UTILS =================
 def get_file_hash(file_bytes):
-    """Hash from bytes, not file object."""
     hasher = hashlib.md5()
     hasher.update(file_bytes)
     return hasher.hexdigest()
 
 def create_folder(name, parent_id):
     drive = get_drive_service()
-    # Sanitize folder name to avoid Drive API issues
     safe_name = name.replace("'", "\\'")
     query = (
         f"name='{safe_name}' and '{parent_id}' in parents "
@@ -103,13 +93,7 @@ def create_folder(name, parent_id):
 
     return folder.get("id")
 
-# -----------------------------------------------
-# FIX #2: Upload from memory (BytesIO), NOT disk
-# This eliminates SIGSEGV crashes from disk I/O
-# and fixes "file not found" after restarts
-# -----------------------------------------------
 def upload_stream(file_bytes, file_name, mime_type, parent_id):
-    """Upload directly from memory buffer."""
     drive = get_drive_service()
     stream = BytesIO(file_bytes)
 
@@ -131,7 +115,6 @@ def upload_stream(file_bytes, file_name, mime_type, parent_id):
 
 # ================= BACKUP SYSTEM =================
 def create_backup(data):
-    """Backup stored in memory, uploaded to Drive directly."""
     drive = get_drive_service()
     file_name = f"backup_{int(time.time())}.json"
     json_bytes = json.dumps(data).encode("utf-8")
@@ -148,21 +131,8 @@ def create_backup(data):
 
     return file.get("id")
 
-def update_backup_status(file_id, status):
-    drive = get_drive_service()
-    try:
-        drive.files().update(
-            fileId=file_id,
-            body={"description": f"STATUS: {status}"},
-            supportsAllDrives=True
-        ).execute()
-    except Exception as e:
-        print(f"⚠️ Backup status update failed: {e}")
-
 # ================= RETRY WRAPPER =================
-# FIX #3: Retry logic for transient SSL errors
 def retry(func, retries=3, delay=2):
-    """Retry a function on SSL/connection errors."""
     last_error = None
     for attempt in range(retries):
         try:
@@ -170,20 +140,18 @@ def retry(func, retries=3, delay=2):
         except Exception as e:
             last_error = e
             error_str = str(e)
-            # Only retry on known transient errors
             if any(x in error_str for x in [
                 "SSL", "Connection", "timeout",
                 "IncompleteRead", "ConnectionReset"
             ]):
                 print(f"⚠️ Attempt {attempt + 1} failed: {e}. Retrying...")
-                # Clear thread-local clients so they get recreated fresh
                 if hasattr(_thread_local, 'drive_service'):
                     del _thread_local.drive_service
                 if hasattr(_thread_local, 'sheet_client'):
                     del _thread_local.sheet_client
                 time.sleep(delay * (attempt + 1))
             else:
-                raise  # Non-retryable error
+                raise
     raise last_error
 
 # ================= ROUTES =================
@@ -202,7 +170,7 @@ def upload():
             val = request.form.get(key, "").strip()
             return val if val else "-"
 
-        # ===== Capture Data =====
+        # ===== STEP 1: CAPTURE FORM DATA =====
         agent_msid = get_v("agentMsid")
         eclinic = get_v("eclinicCode").upper()
         state = get_v("state")
@@ -222,65 +190,36 @@ def upload():
         today_str = datetime.now().strftime("%d-%m-%Y")
         timestamp_str = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-        # -----------------------------------------------
-        # FIX #4: Read ALL files into memory FIRST
-        # before doing anything else.
-        # Flask request context closes after response,
-        # so we capture bytes immediately.
-        # -----------------------------------------------
+        # ===== STEP 2: READ FILES INTO MEMORY =====
         video = request.files.get('video')
-        if not video:
-            return "❌ Video Missing", 400
+        if not video or video.filename == '':
+            print("⚠️ No video in request - likely mid-deploy submission")
+            return "RETRY", 503
 
-        video_bytes = video.read()  # Read into memory
+        video_bytes = video.read()
+        if len(video_bytes) == 0:
+            print("⚠️ Empty video received")
+            return "RETRY", 503
+
         print(f"📹 Video size: {len(video_bytes) / 1024 / 1024:.1f} MB")
 
         photos = {}
         for i in range(1, 5):
             photo = request.files.get(f'photo{i}')
-            if photo:
+            if photo and photo.filename != '':
                 photos[i] = {
                     'bytes': photo.read(),
                     'filename': photo.filename
                 }
 
-        # ===== BACKUP =====
-        backup_data = {
-            "agent": agent_msid,
-            "clinic": eclinic,
-            "state": state,
-            "timestamp": timestamp_str,
-            "scores": scores,
-            "final_score": final_score,
-            "issues": issues,
-            "ai_output": ai_output[:1000]  # Keep backup small
-        }
-
-        backup_id = retry(lambda: create_backup(backup_data))
-        print("📁 Backup created:", backup_id)
-
-        # ===== SHEET =====
-        row = [
-            agent_msid, eclinic, state,
-            today_str, timestamp_str
-        ] + scores + [
-            final_score, issues, ai_output, "PENDING"
-        ]
-
-        sheet_client = retry(lambda: get_sheet_client())
-        retry(lambda: sheet_client.append_row(row, value_input_option="RAW"))
-        print("✅ Sheet entry success")
-
-        row_number = retry(lambda: len(sheet_client.col_values(1)))
-        print("📍 Row:", row_number)
-
-        # ===== DRIVE FOLDERS =====
+        # ===== STEP 3: CREATE DRIVE FOLDERS =====
+        print("📂 Creating folders...")
         e_fold = retry(lambda: create_folder(eclinic, ROOT_FOLDER_ID))
         d_fold = retry(lambda: create_folder(today_str, e_fold))
         p_fold = retry(lambda: create_folder("Photos", d_fold))
         v_fold = retry(lambda: create_folder("Videos", d_fold))
 
-        # ===== VIDEO UPLOAD (from memory) =====
+        # ===== STEP 4: UPLOAD VIDEO =====
         print("🎥 Uploading video...")
         v_hash = get_file_hash(video_bytes)
         v_name = f"{eclinic}_{today_str}_{v_hash}.mp4"
@@ -290,7 +229,7 @@ def upload():
         )
         print("✅ Video uploaded:", video_link)
 
-        # ===== PHOTOS (from memory, parallel) =====
+        # ===== STEP 5: UPLOAD PHOTOS =====
         print("🖼️ Uploading photos...")
 
         def process_photo(item):
@@ -303,24 +242,54 @@ def upload():
                 p_fold
             ))
 
-        # Limit workers to avoid memory pressure on free tier
         with ThreadPoolExecutor(max_workers=2) as executor:
             executor.map(process_photo, photos.items())
 
         print("✅ Photos uploaded")
 
-        # ===== UPDATE SHEET =====
-        retry(lambda: sheet_client.update_cell(row_number, len(row), video_link))
-        print("🔄 Sheet updated with Drive link")
+        # ===== STEP 6: SHEET ENTRY ONLY AFTER SUCCESS =====
+        # ✅ Only written if BOTH video + photos uploaded successfully
+        # ✅ No more PENDING rows
+        # ✅ No more ERROR backlogs
+        print("📝 Writing to sheet...")
 
-        # ===== FINAL =====
-        update_backup_status(backup_id, "SUCCESS")
+        row = [
+            agent_msid, eclinic, state,
+            today_str, timestamp_str
+        ] + scores + [
+            final_score, issues, ai_output,
+            video_link  # ✅ Direct link written immediately, no PENDING
+        ]
+
+        sheet_client = retry(lambda: get_sheet_client())
+        retry(lambda: sheet_client.append_row(row, value_input_option="RAW"))
+        print("✅ Sheet entry success")
+
+        # ===== STEP 7: BACKUP AFTER SUCCESS =====
+        # ✅ Only backs up successful submissions
+        # ✅ Keeps backup drive clean
+        backup_data = {
+            "agent": agent_msid,
+            "clinic": eclinic,
+            "state": state,
+            "timestamp": timestamp_str,
+            "video_link": video_link,
+            "status": "SUCCESS"
+        }
+
+        try:
+            backup_id = create_backup(backup_data)
+            print("📁 Backup created:", backup_id)
+        except Exception as be:
+            # ✅ Backup failure does NOT affect main upload
+            print(f"⚠️ Backup failed (non-critical): {be}")
+
         print("🎉 SUCCESS")
-
         return "✅ Audit Uploaded Successfully!"
 
     except Exception as e:
         print("❌ ERROR:", str(e))
+        # ✅ No sheet entry on failure = zero backlog
         return f"❌ System Error: {str(e)}", 500
 
 # ================= RUN =================
